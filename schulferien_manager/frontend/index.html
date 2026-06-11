@@ -59,6 +59,21 @@
   button.ghost{background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:500; padding:7px 12px}
   button.ghost:hover{color:var(--text); border-color:var(--muted); filter:none}
   button.ghost.danger:hover{color:var(--danger); border-color:var(--danger)}
+  .status .sep{opacity:.4}
+  .settings-grid{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end}
+  .test-msg{font-size:.85rem; margin-top:10px; min-height:1.2em; color:var(--muted)}
+  .test-msg.ok{color:var(--frei)} .test-msg.fail{color:var(--danger)}
+  details.entbox{border:1px solid var(--line); border-radius:8px; background:var(--surface2)}
+  details.entbox summary{cursor:pointer; padding:8px 12px; font-size:.82rem; color:var(--muted); list-style:none}
+  details.entbox summary::before{content:"▸ "} details.entbox[open] summary::before{content:"▾ "}
+  details.entbox .entlist{display:flex; flex-direction:column; gap:5px; padding:4px 12px 11px}
+  details.entbox code{
+    font-family:ui-monospace,"SF Mono",Consolas,monospace; font-size:.8rem; color:var(--text);
+    background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 8px;
+    cursor:copy; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  details.entbox code:hover{border-color:var(--accent)}
+  .meta{font-size:.74rem; color:var(--muted)}
   .form-msg{margin-top:10px; font-size:.85rem; color:var(--danger); min-height:1.2em}
 
   /* ---------- Regionen ---------- */
@@ -123,11 +138,43 @@
 <body>
 <header>
   <h1>Schulferien &amp; Feiertage</h1>
-  <span class="sub">OpenHolidays API → MQTT</span>
-  <div class="status"><span class="dot" id="mqttDot"></span><span id="mqttText">MQTT …</span></div>
+  <span class="sub" id="versionText">v–</span>
+  <div class="status">
+    <span class="dot" id="apiDot"></span><span id="apiText">API …</span>
+    <span class="sep">·</span>
+    <span class="dot" id="mqttDot"></span><span id="mqttText">MQTT …</span>
+    <span class="sep">·</span>
+    <span id="refreshText">Stand: –</span>
+  </div>
 </header>
 
 <main>
+  <section class="panel">
+    <details>
+      <summary style="cursor:pointer; font-size:.8rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted)">Einstellungen</summary>
+      <div class="settings-grid" style="margin-top:14px">
+        <div class="field">
+          <label for="selInterval">Aktualisierungsintervall</label>
+          <select id="selInterval">
+            <option value="12">Alle 12 Stunden</option>
+            <option value="24">Alle 24 Stunden</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="selProvider">API</label>
+          <select id="selProvider"></select>
+        </div>
+        <div class="field">
+          <label for="selFallback">Fallback-API</label>
+          <select id="selFallback"></select>
+        </div>
+        <button class="ghost" id="btnTest">API testen</button>
+        <button id="btnSaveSettings">Speichern</button>
+      </div>
+      <div class="test-msg" id="testMsg"></div>
+    </details>
+  </section>
+
   <section class="panel">
     <h2>Region hinzufügen</h2>
     <div class="form-grid">
@@ -147,10 +194,24 @@
         <label for="inpLabel">Name (optional)</label>
         <input type="text" id="inpLabel" placeholder="z. B. Bayern">
       </div>
-      <label class="field check">
-        <input type="checkbox" id="chkHolidaysOnly">
-        <span>Nur Feiertage</span>
-      </label>
+      <div class="field">
+        <label for="selHolidaysOnly">Nur Feiertage</label>
+        <select id="selHolidaysOnly">
+          <option value="nein" selected>Nein</option>
+          <option value="ja">Ja</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="selMode">Entitäten</label>
+        <select id="selMode">
+          <option value="einzeln" selected>Einzelne Entitäten</option>
+          <option value="kombiniert">Eine Entität (alles als Attribute)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="inpSuffix">Suffix (optional)</label>
+        <input type="text" id="inpSuffix" placeholder="z. B. kinder">
+      </div>
       <button id="btnAdd">Region anlegen</button>
     </div>
     <div class="form-msg" id="formMsg"></div>
@@ -187,10 +248,70 @@ async function api(path, opts) {
 async function loadStatus() {
   try {
     const s = await api("status");
+    $("versionText").textContent = "v" + s.version;
     $("mqttDot").classList.toggle("ok", s.mqtt_connected);
     $("mqttText").textContent = s.mqtt_connected ? "MQTT verbunden"
       : s.mqtt_configured ? "MQTT getrennt" : "Kein MQTT";
+    const apiDot = $("apiDot");
+    if (s.api_ok === null) { apiDot.className = "dot"; apiDot.style.background = "var(--muted)"; $("apiText").textContent = s.provider_name || "API"; }
+    else {
+      apiDot.style.background = ""; apiDot.classList.toggle("ok", s.api_ok);
+      $("apiText").textContent = (s.provider_name || "API") + (s.api_ok ? " verfügbar" : " gestört");
+      $("apiText").title = (s.api_errors || []).join("\n");
+    }
+    $("refreshText").textContent = "Stand: " + (s.last_refresh
+      ? new Date(s.last_refresh * 1000).toLocaleTimeString("de-DE", {hour:"2-digit",minute:"2-digit"})
+      : "–");
   } catch { $("mqttText").textContent = "Backend nicht erreichbar"; }
+}
+
+/* ---------- Einstellungen ---------- */
+let providerCatalog = [];
+async function loadSettings() {
+  try {
+    const data = await api("settings");
+    providerCatalog = data.providers;
+    const opts = providerCatalog.map(p => `<option value="${p.id}" title="${p.hint}">${p.name} – ${p.hint}</option>`).join("");
+    $("selProvider").innerHTML = opts;
+    $("selFallback").innerHTML = '<option value="none">Keine</option>' + opts;
+    $("selProvider").value = data.settings.api_provider;
+    $("selFallback").value = data.settings.api_fallback;
+    $("selInterval").value = String(data.settings.update_interval_hours);
+  } catch (e) { $("testMsg").textContent = "Einstellungen: " + e.message; }
+}
+
+async function testProvider() {
+  $("testMsg").className = "test-msg"; $("testMsg").textContent = "Teste …";
+  try {
+    const r = await api("providers/test", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({provider: $("selProvider").value})});
+    $("testMsg").className = "test-msg " + (r.ok ? "ok" : "fail");
+    $("testMsg").textContent = r.message;
+  } catch (e) { $("testMsg").className = "test-msg fail"; $("testMsg").textContent = e.message; }
+}
+
+async function saveSettings() {
+  $("btnSaveSettings").disabled = true;
+  $("testMsg").className = "test-msg"; $("testMsg").textContent = "Prüfe API-Verfügbarkeit …";
+  try {
+    const r = await api("settings", {method:"PUT", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        update_interval_hours: parseInt($("selInterval").value, 10),
+        api_provider: $("selProvider").value,
+        api_fallback: $("selFallback").value
+      })});
+    $("testMsg").className = "test-msg ok";
+    $("testMsg").textContent = "Gespeichert. " + (r.test ? r.test.message : "");
+    setTimeout(loadRegions, 1500); loadStatus();
+  } catch (e) { $("testMsg").className = "test-msg fail"; $("testMsg").textContent = e.message; }
+  $("btnSaveSettings").disabled = false;
+}
+
+function copyEntity(el) {
+  navigator.clipboard?.writeText(el.textContent).then(() => {
+    const t = el.textContent; el.textContent = "✓ kopiert";
+    setTimeout(() => el.textContent = t, 900);
+  });
 }
 
 /* ---------- Formular ---------- */
@@ -254,9 +375,15 @@ async function addRegion() {
     await api("regions", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({country, subdivision, label, holidays_only: $("chkHolidaysOnly").checked})
+      body: JSON.stringify({
+        country, subdivision, label,
+        holidays_only: $("selHolidaysOnly").value === "ja",
+        combined: $("selMode").value === "kombiniert",
+        suffix: $("inpSuffix").value.trim()
+      })
     });
-    $("inpLabel").value = ""; $("chkHolidaysOnly").checked = false;
+    $("inpLabel").value = ""; $("inpSuffix").value = "";
+    $("selHolidaysOnly").value = "nein"; $("selMode").value = "einzeln";
     await loadRegions();
   } catch (e) { $("formMsg").textContent = e.message; }
   $("btnAdd").disabled = false;
@@ -307,15 +434,27 @@ function card(r) {
       </div>
       <div class="next">${events || '<span style="color:var(--muted);font-size:.85rem">Keine anstehenden Termine im Zeitfenster.</span>'}</div>`;
   }
+  const entbox = (r.entities && r.entities.length) ? `
+    <details class="entbox">
+      <summary>Entitäten (${r.entities.length}) – zum Kopieren anklicken</summary>
+      <div class="entlist">${r.entities.map(e =>
+        `<code onclick="copyEntity(this)" title="${e.name}">${e.entity_id}</code>`).join("")}</div>
+    </details>` : "";
+  const apiUsed = r.api_used && Object.values(r.api_used).filter(Boolean);
+  const meta = r.fetched ? `<div class="meta">Quelle: ${[...new Set(apiUsed || [])].join(" + ") || "–"} · Aktualisiert: ${new Date(r.fetched * 1000).toLocaleString("de-DE", {day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</div>` : "";
   return `
   <article class="card" data-id="${r.id}">
     <div class="card-head">
       <span class="flag">${flag(cc)}</span>
       <h3>${r.label}</h3>
       <span class="code mono">${r.subdivision || r.country}</span>
+      ${r.suffix ? `<span class="code mono">· ${r.suffix}</span>` : ""}
+      ${r.combined ? '<span class="tag" style="border-color:var(--ferien);color:var(--ferien)">1 Entität</span>' : ""}
       ${r.holidays_only ? '<span class="tag">Nur Feiertage</span>' : ""}
     </div>
     ${body}
+    ${entbox}
+    ${meta}
     <div class="card-foot">
       <button class="ghost" onclick="refreshRegion('${r.id}')">Neu laden</button>
       <button class="ghost danger" onclick="deleteRegion('${r.id}', '${r.label.replace(/'/g, "\\'")}')">Entfernen</button>
@@ -347,8 +486,10 @@ async function deleteRegion(id, label) {
 $("selCountry").addEventListener("change", loadSubdivisions);
 $("selSub").addEventListener("change", onSubChanged);
 $("btnAdd").addEventListener("click", addRegion);
+$("btnTest").addEventListener("click", testProvider);
+$("btnSaveSettings").addEventListener("click", saveSettings);
 
-loadStatus(); loadCountries(); loadRegions();
+loadStatus(); loadSettings(); loadCountries(); loadRegions();
 setInterval(loadStatus, 15000);
 setInterval(loadRegions, 60000);
 </script>

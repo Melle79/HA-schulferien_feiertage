@@ -36,6 +36,8 @@ def add_region(
     label: str,
     holidays_only: bool,
     language: str = "DE",
+    combined: bool = False,
+    suffix: str = "",
 ) -> dict:
     region = {
         "id": uuid.uuid4().hex[:8],
@@ -44,6 +46,8 @@ def add_region(
         "label": label,
         "holidays_only": bool(holidays_only),
         "language": language.upper(),
+        "combined": bool(combined),
+        "suffix": suffix,
     }
     with _lock:
         regions = []
@@ -72,3 +76,39 @@ def delete_region(region_id: str) -> dict | None:
             regions = [r for r in regions if r["id"] != region_id]
             _save(regions)
         return removed
+
+
+# ---------------------------------------------------------------- Einstellungen
+
+SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
+DEFAULT_SETTINGS = {
+    "update_interval_hours": 12,
+    "api_provider": "openholidays",
+    "api_fallback": "german_apis",
+}
+
+
+def load_settings() -> dict:
+    with _lock:
+        settings = dict(DEFAULT_SETTINGS)
+        if os.path.exists(SETTINGS_FILE):
+            try:
+                with open(SETTINGS_FILE, encoding="utf-8") as f:
+                    settings.update(json.load(f))
+            except (json.JSONDecodeError, OSError):
+                pass
+        return settings
+
+
+def save_settings(settings: dict) -> dict:
+    merged = dict(DEFAULT_SETTINGS)
+    merged.update({k: settings[k] for k in DEFAULT_SETTINGS if k in settings})
+    if merged["update_interval_hours"] not in (12, 24):
+        merged["update_interval_hours"] = 12
+    with _lock:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        tmp = SETTINGS_FILE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(merged, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, SETTINGS_FILE)
+    return merged

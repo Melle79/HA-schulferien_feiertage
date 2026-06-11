@@ -122,6 +122,66 @@ def build_preview(data: dict, holidays_only: bool, limit: int = 6, today: date |
     return events[:limit]
 
 
+def build_combined_state(region: dict, data: dict, today: date | None = None) -> dict:
+    """Eine einzelne Entität mit allen Daten als Attribute."""
+    today = today or date.today()
+    tomorrow = today + timedelta(days=1)
+    school = data.get("school", [])
+    public = data.get("public", [])
+    holidays_only = region.get("holidays_only", False)
+
+    heute_ft = period_on(public, today)
+    morgen_ft = period_on(public, tomorrow)
+    next_pub = next_period(public, today)
+
+    attrs: dict = {
+        "datum": today.isoformat(),
+        "heute_feiertag": heute_ft is not None,
+        "heute_feiertag_name": heute_ft["name"] if heute_ft else None,
+        "morgen_feiertag": morgen_ft is not None,
+        "morgen_feiertag_name": morgen_ft["name"] if morgen_ft else None,
+        "naechster_feiertag": next_pub["name"] if next_pub else None,
+        "naechster_feiertag_datum": next_pub["start"].isoformat() if next_pub else None,
+        "naechster_feiertag_in_tagen": (next_pub["start"] - today).days if next_pub else None,
+    }
+
+    if holidays_only:
+        state = "Feiertag" if heute_ft else "Kein Feiertag"
+        return {"state": state, "attributes": attrs}
+
+    heute_frei, heute_grund = is_school_free(school, public, today)
+    morgen_frei, morgen_grund = is_school_free(school, public, tomorrow)
+    next_school = next_period(school, today)
+    current = period_on(school, today)
+
+    attrs.update(
+        {
+            "heute_schulfrei": heute_frei,
+            "heute_grund": heute_grund,
+            "morgen_schulfrei": morgen_frei,
+            "morgen_grund": morgen_grund,
+            "naechste_schulferien": next_school["name"] if next_school else None,
+            "schulferien_beginn": next_school["start"].isoformat() if next_school else None,
+            "schulferien_ende": next_school["end"].isoformat() if next_school else None,
+            "schulferien_in_tagen": (next_school["start"] - today).days if next_school else None,
+            "schulferien_dauer_tage": (next_school["end"] - next_school["start"]).days + 1
+            if next_school
+            else None,
+            "aktuell_ferien": current["name"] if current else None,
+        }
+    )
+
+    if heute_ft:
+        state = "Feiertag"
+    elif current:
+        state = "Ferien"
+    elif today.weekday() >= 5:
+        state = "Wochenende"
+    else:
+        state = "Schule"
+    return {"state": state, "attributes": attrs}
+
+
 def build_day_strip(
     data: dict, holidays_only: bool, days: int = 14, today: date | None = None
 ) -> list[dict]:

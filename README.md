@@ -2,16 +2,21 @@
 
 Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Schulferien und gesetzliche Feiertage von der offiziellen [OpenHolidays API](https://www.openholidaysapi.org) als Entitäten in Home Assistant – verwaltet über eine eigene Weboberfläche.
 
-[![Repository zu Home Assistant hinzufügen](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FMelle79%2FHA-schulferien_feiertage)
+[![Repository zu Home Assistant hinzufügen](https://img.shields.io/badge/Repository_zu-Home_Assistant_hinzufügen-41BDF5?logo=home-assistant&logoColor=white&style=for-the-badge)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FMelle79%2FHA-schulferien_feiertage)
+
+*Hinweis: Falls der Dialog in HA nicht vorbefüllt erscheint (bekannter my.home-assistant.io-Bug), die Repo-URL einfach manuell unter Add-on Store → ⋮ → Repositories eintragen.*
 
 ## Funktionen
 
-- **Web-UI als Ingress-Panel**: Staat → Bundesland → Region per Dropdown wählen (live aus der OpenHolidays API)
+- **Web-UI als Ingress-Panel**: Staat → Bundesland → Region per Dropdown wählen (live aus der API; Unterregionen wie Augsburg erscheinen nur unter ihrem Bundesland)
 - **Mehrere Regionen** parallel – jede Region wird ein eigenes MQTT-Gerät mit eigenen Entitäten
-- **„Nur Feiertage"-Modus** pro Region (legt keine Schulferien-Entitäten an)
-- **Übersicht mit Vorschau**: Status-Badges (heute/morgen), 14-Tage-Streifen und Terminliste je Region
+- **Wählbare APIs ohne Key** mit Verfügbarkeitstest und **Fallback-API**: OpenHolidays API (Standard), ferien-api.de + feiertage-api.de (nur DE), Nager.Date (nur Feiertage)
+- **„Nur Feiertage"-Modus** pro Region – Entitäten heißen dann `feiertage_…` statt `schulferien_…`
+- **Kombinierter Modus**: wahlweise eine einzelne Entität je Region mit allen Daten als Attribute
+- **Eigenes Suffix** pro Region für die Entity-IDs; alle erzeugten Entitäten werden in der UI in einer Infobox angezeigt (Klick = kopieren)
+- **Aktualisierungsintervall wählbar** (12 oder 24 h) plus manueller Refresh; Status zeigt API-Verfügbarkeit und Zeitpunkt der letzten Aktualisierung
+- Regionale Feiertage (z. B. Augsburger Friedensfest) erscheinen nur, wenn die passende Region angelegt ist
 - Entitäten via **MQTT Discovery** (retained), automatischer Cleanup beim Entfernen einer Region
-- API-Refresh alle 12 h, Zustands-Neuberechnung nach Mitternacht
 
 ## Entitäten pro Region
 
@@ -44,3 +49,7 @@ Im Modus „Nur Feiertage" werden nur die drei Feiertags-Entitäten angelegt.
 ## Lizenz
 
 MIT – siehe [LICENSE](LICENSE).
+
+## Haftungsausschluss
+
+Dieser Code wurde **vollständig mit KI (Claude von Anthropic) erstellt**. Die Nutzung erfolgt auf eigene Gefahr – **jegliche Haftung ist ausgeschlossen** (siehe auch MIT-Lizenz). Es findet **kein Support** statt; Issues und Pull Requests werden möglicherweise nicht beantwortet.

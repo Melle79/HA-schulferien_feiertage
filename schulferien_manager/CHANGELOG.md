@@ -14,3 +14,15 @@
 
 - Vorschau auf volle Seitenbreite: eine Regionskarte pro Zeile
 - 14-Tage-Streifen größer, mit Wochentag unter jedem Tag
+
+## 1.1.0
+
+- Wählbare APIs (ohne Key) mit Verfügbarkeitstest vor dem Speichern + Fallback-API: OpenHolidays, ferien-api.de + feiertage-api.de, Nager.Date
+- Aktualisierungsintervall wählbar (12/24 h)
+- Statusleiste: Version, API-Verfügbarkeit (Stand der letzten Aktualisierung) und Zeitpunkt der letzten Aktualisierung
+- Pro Region wählbar: einzelne Entitäten oder eine kombinierte Entität (alle Daten als Attribute)
+- Optionales Suffix für Entity-IDs; Entitäten-Infobox je Region (Klick = kopieren)
+- "Nur Feiertage" als Dropdown (Standard: Nein); Entitäten heißen dann feiertage_… statt schulferien_…
+- Unterregionen erscheinen nur noch unter ihrem Bundesland (Augsburg-Fix)
+- Regionale Feiertage (z. B. Friedensfest) nur noch bei passender Region
+- README: Badge auf shields.io umgestellt, Haftungsausschluss ergänzt

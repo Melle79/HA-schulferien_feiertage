@@ -7,6 +7,8 @@ import threading
 
 import paho.mqtt.client as mqtt
 
+from version import VERSION
+
 _LOGGER = logging.getLogger(__name__)
 
 DISCOVERY_PREFIX = "homeassistant"
@@ -27,10 +29,45 @@ ENTITY_DEFS_HOLIDAYS_ONLY = [
     ("binary_sensor", "morgen_feiertag", "Morgen Feiertag", "mdi:calendar-star"),
     ("sensor", "naechster_feiertag", "Nächster Feiertag", "mdi:calendar-star"),
 ]
+ENTITY_DEF_COMBINED = ("sensor", "status", "Status", "mdi:school-outline")
 
 
-def entity_defs(holidays_only: bool) -> list:
-    return ENTITY_DEFS_HOLIDAYS_ONLY if holidays_only else ENTITY_DEFS_FULL
+def entity_defs(region: dict) -> list:
+    if region.get("combined", False):
+        return [ENTITY_DEF_COMBINED]
+    if region.get("holidays_only", False):
+        return ENTITY_DEFS_HOLIDAYS_ONLY
+    return ENTITY_DEFS_FULL
+
+
+def suffix_slug(suffix: str) -> str:
+    """Suffix auf MQTT/HA-taugliche Zeichen reduzieren."""
+    repl = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss", "Ä": "ae", "Ö": "oe", "Ü": "ue"}
+    for src, dst in repl.items():
+        suffix = suffix.replace(src, dst)
+    out = "".join(c if c.isalnum() else "_" for c in suffix.lower())
+    while "__" in out:
+        out = out.replace("__", "_")
+    return out.strip("_")
+
+
+def name_prefix(region: dict) -> str:
+    """Entitäten-/Gerätepräfix: 'feiertage' im Nur-Feiertage-Modus, sonst 'schulferien'."""
+    return "feiertage" if region.get("holidays_only", False) else "schulferien"
+
+
+def object_id(region: dict, key: str) -> str:
+    base = f"{name_prefix(region)}_{_slugify(region['label'])}_{key}"
+    sfx = suffix_slug(region.get("suffix", ""))
+    return f"{base}_{sfx}" if sfx else base
+
+
+def entity_list(region: dict) -> list[dict]:
+    """Entity-IDs einer Region für die Anzeige in der UI."""
+    return [
+        {"entity_id": f"{component}.{object_id(region, key)}", "name": name}
+        for component, key, name, _icon in entity_defs(region)
+    ]
 
 
 class Publisher:
@@ -80,20 +117,20 @@ class Publisher:
 
     def publish_discovery(self, region: dict) -> None:
         rid = region["id"]
+        prefix = name_prefix(region)
         device = {
             "identifiers": [f"schulferien_{rid}"],
-            "name": f"Schulferien {region['label']}",
-            "manufacturer": "OpenHolidays API",
+            "name": f"{'Feiertage' if region.get('holidays_only') else 'Schulferien'} {region['label']}",
+            "manufacturer": "Schulferien & Feiertage Manager",
             "model": region.get("subdivision") or region.get("country", ""),
-            "sw_version": "1.0.1",
+            "sw_version": VERSION,
         }
-        slug = _slugify(region["label"])
-        for component, key, name, icon in entity_defs(region.get("holidays_only", False)):
+        for component, key, name, icon in entity_defs(region):
             config_topic = f"{DISCOVERY_PREFIX}/{component}/schulferien_{rid}/{key}/config"
             payload = {
                 "name": name,
                 "unique_id": f"schulferien_{rid}_{key}",
-                "object_id": f"{slug}_{key}",
+                "object_id": object_id(region, key),
                 "state_topic": f"{BASE_TOPIC}/{rid}/{key}/state",
                 "json_attributes_topic": f"{BASE_TOPIC}/{rid}/{key}/attributes",
                 "availability_topic": AVAILABILITY_TOPIC,
@@ -118,7 +155,7 @@ class Publisher:
     def remove_region(self, region: dict) -> None:
         """Discovery- und State-Topics einer Region löschen (leere retained Payloads)."""
         rid = region["id"]
-        for component, key, _name, _icon in ENTITY_DEFS_FULL:
+        for component, key, _name, _icon in ENTITY_DEFS_FULL + [ENTITY_DEF_COMBINED]:
             self._client.publish(
                 f"{DISCOVERY_PREFIX}/{component}/schulferien_{rid}/{key}/config",
                 "",
@@ -136,4 +173,4 @@ def _slugify(text: str) -> str:
     out = "".join(c if c.isalnum() else "_" for c in text.lower())
     while "__" in out:
         out = out.replace("__", "_")
-    return f"schulferien_{out.strip('_')}"
+    return out.strip('_')
