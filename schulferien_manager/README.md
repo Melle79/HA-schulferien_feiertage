@@ -2,6 +2,8 @@
 
 Add-on mit eigener Weboberfläche (Ingress-Panel in der Sidebar), das Schulferien und gesetzliche Feiertage aus frei verfügbaren Open-Data-APIs lädt und als Entitäten via **MQTT Discovery** in Home Assistant anlegt.
 
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_me_a_coffee-melle79-FFDD00?logo=buymeacoffee&logoColor=black&style=for-the-badge)](https://buymeacoffee.com/melle79)
+
 ## Funktionen
 
 - **Staat → Bundesland → Region** per Dropdown (live aus der API; Unterregionen wie Augsburg erscheinen nur unter ihrem Bundesland)

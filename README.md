@@ -6,6 +6,8 @@ Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Sc
 
 *Hinweis: Falls der Dialog in HA nicht vorbefüllt erscheint (bekannter my.home-assistant.io-Bug), die Repo-URL einfach manuell unter Add-on Store → ⋮ → Repositories eintragen.*
 
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_me_a_coffee-melle79-FFDD00?logo=buymeacoffee&logoColor=black&style=for-the-badge)](https://buymeacoffee.com/melle79)
+
 ## Funktionen
 
 - **Web-UI als Ingress-Panel**: Staat → Bundesland → Region per Dropdown wählen (live aus der API; Unterregionen wie Augsburg erscheinen nur unter ihrem Bundesland)
