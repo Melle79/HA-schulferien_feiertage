@@ -31,7 +31,7 @@
   }
   .dot{width:9px;height:9px;border-radius:50%;background:var(--danger);flex:none}
   .dot.ok{background:var(--frei)}
-  main{max-width:1180px; margin:0 auto; padding:22px}
+  main{width:100%; margin:0 auto; padding:22px 26px}
 
   /* ---------- Formular ---------- */
   .panel{
@@ -62,7 +62,7 @@
   .form-msg{margin-top:10px; font-size:.85rem; color:var(--danger); min-height:1.2em}
 
   /* ---------- Regionen ---------- */
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:18px}
+  .grid{display:grid; grid-template-columns:1fr; gap:18px}
   .card{
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
     padding:16px 18px; display:flex; flex-direction:column; gap:13px;
@@ -85,13 +85,13 @@
   .badge.on.ft{background:color-mix(in srgb,var(--feiertag) 16%,transparent); border-color:var(--feiertag); color:var(--feiertag)}
 
   /* Signature: 14-Tage-Streifen */
-  .strip{display:flex; gap:3px}
+  .strip{display:flex; gap:4px}
   .strip .d{
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-    font-size:.62rem; color:var(--muted); min-width:0;
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    font-size:.72rem; color:var(--muted); min-width:0;
   }
   .strip .box{
-    width:100%; height:22px; border-radius:5px; background:var(--surface2);
+    width:100%; height:28px; border-radius:6px; background:var(--surface2);
     border:1px solid var(--line);
   }
   .strip .d.today .box{outline:2px solid var(--text); outline-offset:1px}
@@ -282,7 +282,7 @@ function card(r) {
     const s = r.states || {};
     const strip = (r.day_strip || []).map((d, i) =>
       `<div class="d ${d.status} ${i===0?"today":""}" title="${d.weekday} ${fmtDate(d.date)} – ${d.status}">
-         <div class="box"></div><span>${d.day}</span>
+         <div class="box"></div><span>${d.weekday} ${d.day}.</span>
        </div>`).join("");
     const events = (r.preview || []).map(ev => `
       <div class="row ${ev.laufend ? "live" : ""}">

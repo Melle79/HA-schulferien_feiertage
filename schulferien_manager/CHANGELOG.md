@@ -9,3 +9,8 @@
 - 14-Tage-Vorschaustreifen + Terminliste pro Region
 - Entitäten via MQTT Discovery (retained), Cleanup beim Entfernen
 - API-Refresh alle 12 h, Neuberechnung nach Mitternacht
+
+## 1.0.1
+
+- Vorschau auf volle Seitenbreite: eine Regionskarte pro Zeile
+- 14-Tage-Streifen größer, mit Wochentag unter jedem Tag

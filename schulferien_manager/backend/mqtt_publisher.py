@@ -85,7 +85,7 @@ class Publisher:
             "name": f"Schulferien {region['label']}",
             "manufacturer": "OpenHolidays API",
             "model": region.get("subdivision") or region.get("country", ""),
-            "sw_version": "1.0.0",
+            "sw_version": "1.0.1",
         }
         slug = _slugify(region["label"])
         for component, key, name, icon in entity_defs(region.get("holidays_only", False)):
