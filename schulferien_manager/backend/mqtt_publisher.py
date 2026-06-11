@@ -75,6 +75,7 @@ class Publisher:
 
     def __init__(self, host: str, port: int, username: str | None, password: str | None):
         self.connected = threading.Event()
+        self.on_ready = None  # Callback: wird nach jedem (Re-)Connect aufgerufen
         self._client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2, client_id="schulferien-manager"
         )
@@ -101,11 +102,22 @@ class Publisher:
         except Exception:  # noqa: BLE001
             pass
 
+    def _publish(self, topic: str, payload: str) -> None:
+        if not self.connected.is_set():
+            _LOGGER.debug("MQTT noch nicht verbunden – Nachricht wird gepuffert: %s", topic)
+        # QoS 1: paho puffert Nachrichten bis zur Verbindung und stellt sie zu
+        self._client.publish(topic, payload, qos=1, retain=True)
+
     def _on_connect(self, client, userdata, flags, reason_code, properties) -> None:
         if reason_code == 0:
             _LOGGER.info("Mit MQTT-Broker verbunden")
-            client.publish(AVAILABILITY_TOPIC, "online", retain=True)
+            client.publish(AVAILABILITY_TOPIC, "online", qos=1, retain=True)
             self.connected.set()
+            if self.on_ready is not None:
+                try:
+                    self.on_ready()
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.error("Fehler beim Re-Publish nach Connect: %s", err)
         else:
             _LOGGER.error("MQTT-Verbindung abgelehnt: %s", reason_code)
 
@@ -137,32 +149,27 @@ class Publisher:
                 "icon": icon,
                 "device": device,
             }
-            self._client.publish(config_topic, json.dumps(payload), retain=True)
+            self._publish(config_topic, json.dumps(payload))
         _LOGGER.info("Discovery veröffentlicht für Region %s (%s)", region["label"], rid)
 
     def publish_states(self, region: dict, states: dict) -> None:
         rid = region["id"]
         for key, value in states.items():
-            self._client.publish(
-                f"{BASE_TOPIC}/{rid}/{key}/state", value["state"], retain=True
-            )
-            self._client.publish(
+            self._publish(f"{BASE_TOPIC}/{rid}/{key}/state", value["state"])
+            self._publish(
                 f"{BASE_TOPIC}/{rid}/{key}/attributes",
                 json.dumps(value["attributes"], ensure_ascii=False),
-                retain=True,
             )
 
     def remove_region(self, region: dict) -> None:
         """Discovery- und State-Topics einer Region löschen (leere retained Payloads)."""
         rid = region["id"]
         for component, key, _name, _icon in ENTITY_DEFS_FULL + [ENTITY_DEF_COMBINED]:
-            self._client.publish(
-                f"{DISCOVERY_PREFIX}/{component}/schulferien_{rid}/{key}/config",
-                "",
-                retain=True,
+            self._publish(
+                f"{DISCOVERY_PREFIX}/{component}/schulferien_{rid}/{key}/config", ""
             )
-            self._client.publish(f"{BASE_TOPIC}/{rid}/{key}/state", "", retain=True)
-            self._client.publish(f"{BASE_TOPIC}/{rid}/{key}/attributes", "", retain=True)
+            self._publish(f"{BASE_TOPIC}/{rid}/{key}/state", "")
+            self._publish(f"{BASE_TOPIC}/{rid}/{key}/attributes", "")
         _LOGGER.info("Region %s aus MQTT entfernt", rid)
 
 

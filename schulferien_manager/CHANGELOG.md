@@ -30,3 +30,7 @@
 ## 1.1.1
 
 - Dokumentation überarbeitet: Datenquellen-Übersicht (alle drei APIs), Entity-Naming-Schema, kombinierter Modus, Suffix
+
+## 1.1.2
+
+- Fix: Entitäten wurden nicht angelegt, wenn publiziert wurde, bevor die MQTT-Verbindung stand (z. B. direkt nach Add-on-Start/-Update). Publishes laufen jetzt mit QoS 1 (werden gepuffert), zusätzlich werden nach jedem (Re-)Connect alle Regionen automatisch neu publiziert.

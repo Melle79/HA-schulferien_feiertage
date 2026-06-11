@@ -109,6 +109,23 @@ def refresh_all() -> None:
         refresh_region(region)
 
 
+def republish_all() -> None:
+    """Nach (Re-)Connect: alles aus dem Cache erneut publizieren."""
+    if publisher is None:
+        return
+    count = 0
+    for region in store.load_regions():
+        with _data_lock:
+            entry = region_data.get(region["id"])
+        if entry is None or entry.get("error") is not None:
+            continue
+        publisher.publish_discovery(region)
+        publisher.publish_states(region, _states_for_publish(region, entry))
+        count += 1
+    if count:
+        _LOGGER.info("Re-Publish nach MQTT-Connect: %d Regionen", count)
+
+
 def _scheduler() -> None:
     """Alle 12 h neu laden; bei Datumswechsel Zustände neu publizieren."""
     last_day = date.today()
@@ -377,6 +394,7 @@ def main() -> None:
             username=os.environ.get("MQTT_USER"),
             password=os.environ.get("MQTT_PASSWORD"),
         )
+        publisher.on_ready = lambda: threading.Thread(target=republish_all, daemon=True).start()
         publisher.start()
     else:
         _LOGGER.warning("MQTT_HOST nicht gesetzt – es werden keine Entitäten angelegt")
