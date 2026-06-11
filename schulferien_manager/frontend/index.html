@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schulferien & Feiertage</title>
+<style>
+  :root{
+    --bg:#0f1216; --surface:#181d24; --surface2:#1f2630; --line:#2a313b;
+    --text:#e8ecf1; --muted:#8a94a3;
+    --ferien:#e8a23d; --feiertag:#7aa2ff; --frei:#4cc38a;
+    --danger:#e36d6d; --accent:#e8a23d;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;
+    font-size:15px; line-height:1.5; min-height:100vh;
+  }
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;font-size:.92em}
+  header{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    padding:18px 22px; border-bottom:1px solid var(--line);
+  }
+  header h1{font-size:1.15rem; font-weight:600; letter-spacing:.02em}
+  header .sub{color:var(--muted); font-size:.85rem}
+  .status{
+    margin-left:auto; display:flex; align-items:center; gap:8px;
+    font-size:.85rem; color:var(--muted);
+  }
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--danger);flex:none}
+  .dot.ok{background:var(--frei)}
+  main{max-width:1180px; margin:0 auto; padding:22px}
+
+  /* ---------- Formular ---------- */
+  .panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; margin-bottom:26px;
+  }
+  .panel h2{font-size:.8rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:14px}
+  .form-grid{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end}
+  .field{display:flex; flex-direction:column; gap:6px; min-width:170px; flex:1}
+  .field label{font-size:.78rem; color:var(--muted)}
+  select,input[type=text]{
+    background:var(--surface2); border:1px solid var(--line); border-radius:8px;
+    color:var(--text); padding:9px 10px; font-size:.92rem; width:100%;
+  }
+  select:focus,input:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent}
+  .check{display:flex; align-items:center; gap:8px; padding:9px 0; min-width:auto; flex:none}
+  .check input{width:17px;height:17px;accent-color:var(--accent)}
+  .check span{font-size:.9rem}
+  button{
+    border:none; border-radius:8px; padding:10px 18px; font-size:.92rem; font-weight:600;
+    cursor:pointer; background:var(--accent); color:#1a1408;
+  }
+  button:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.45; cursor:default}
+  button.ghost{background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:500; padding:7px 12px}
+  button.ghost:hover{color:var(--text); border-color:var(--muted); filter:none}
+  button.ghost.danger:hover{color:var(--danger); border-color:var(--danger)}
+  .form-msg{margin-top:10px; font-size:.85rem; color:var(--danger); min-height:1.2em}
+
+  /* ---------- Regionen ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:18px}
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 18px; display:flex; flex-direction:column; gap:13px;
+  }
+  .card-head{display:flex; align-items:baseline; gap:10px}
+  .card-head .flag{font-size:1.25rem}
+  .card-head h3{font-size:1.02rem; font-weight:600}
+  .card-head .code{color:var(--muted); font-size:.78rem}
+  .tag{
+    margin-left:auto; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em;
+    border:1px solid var(--feiertag); color:var(--feiertag);
+    border-radius:99px; padding:2px 9px; white-space:nowrap;
+  }
+  .badges{display:flex; flex-wrap:wrap; gap:7px}
+  .badge{
+    font-size:.78rem; border-radius:7px; padding:4px 9px;
+    background:var(--surface2); border:1px solid var(--line); color:var(--muted);
+  }
+  .badge.on{background:color-mix(in srgb,var(--frei) 16%,transparent); border-color:var(--frei); color:var(--frei)}
+  .badge.on.ft{background:color-mix(in srgb,var(--feiertag) 16%,transparent); border-color:var(--feiertag); color:var(--feiertag)}
+
+  /* Signature: 14-Tage-Streifen */
+  .strip{display:flex; gap:3px}
+  .strip .d{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:.62rem; color:var(--muted); min-width:0;
+  }
+  .strip .box{
+    width:100%; height:22px; border-radius:5px; background:var(--surface2);
+    border:1px solid var(--line);
+  }
+  .strip .d.today .box{outline:2px solid var(--text); outline-offset:1px}
+  .strip .d.ferien .box{background:color-mix(in srgb,var(--ferien) 55%,transparent); border-color:var(--ferien)}
+  .strip .d.feiertag .box{background:color-mix(in srgb,var(--feiertag) 65%,transparent); border-color:var(--feiertag)}
+  .strip .d.wochenende .box{background:color-mix(in srgb,#8a94a3 22%,transparent)}
+  .legend{display:flex; gap:13px; font-size:.7rem; color:var(--muted); flex-wrap:wrap}
+  .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px}
+
+  .next{display:flex; flex-direction:column; gap:6px}
+  .next .row{display:flex; gap:9px; align-items:baseline; font-size:.88rem}
+  .next .ico{width:16px; text-align:center; flex:none}
+  .next .when{margin-left:auto; color:var(--muted); white-space:nowrap}
+  .next .name{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .next .row.live .name{color:var(--frei)}
+  .err{color:var(--danger); font-size:.85rem}
+  .card-foot{display:flex; gap:8px; margin-top:auto; padding-top:4px}
+  .empty{
+    text-align:center; color:var(--muted); padding:60px 20px;
+    border:1px dashed var(--line); border-radius:var(--radius);
+  }
+  @media (max-width:560px){ .grid{grid-template-columns:1fr} header{padding:14px 16px} main{padding:14px} }
+  @media (prefers-reduced-motion:no-preference){
+    .card{animation:in .25s ease both}
+    @keyframes in{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Schulferien &amp; Feiertage</h1>
+  <span class="sub">OpenHolidays API → MQTT</span>
+  <div class="status"><span class="dot" id="mqttDot"></span><span id="mqttText">MQTT …</span></div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Region hinzufügen</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="selCountry">Staat</label>
+        <select id="selCountry"><option value="">Lade …</option></select>
+      </div>
+      <div class="field">
+        <label for="selSub">Bundesland</label>
+        <select id="selSub" disabled><option value="">–</option></select>
+      </div>
+      <div class="field" id="fieldRegion" hidden>
+        <label for="selRegion">Region</label>
+        <select id="selRegion"><option value="">Gesamtes Bundesland</option></select>
+      </div>
+      <div class="field">
+        <label for="inpLabel">Name (optional)</label>
+        <input type="text" id="inpLabel" placeholder="z. B. Bayern">
+      </div>
+      <label class="field check">
+        <input type="checkbox" id="chkHolidaysOnly">
+        <span>Nur Feiertage</span>
+      </label>
+      <button id="btnAdd">Region anlegen</button>
+    </div>
+    <div class="form-msg" id="formMsg"></div>
+  </section>
+
+  <section class="grid" id="grid"></section>
+  <div class="empty" id="empty" hidden>
+    Noch keine Regionen angelegt.<br>Wähle oben Staat und Bundesland, um die ersten Entitäten zu erzeugen.
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let subdivisions = [];
+
+const flag = (cc) => cc && cc.length === 2
+  ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
+  : "🌍";
+
+const fmtDate = (iso) => {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("de-DE", {day:"2-digit", month:"2-digit", year:"numeric"});
+};
+const fmtIn = (n) => n === 0 ? "heute" : n === 1 ? "morgen" : `in ${n} Tagen`;
+
+async function api(path, opts) {
+  const resp = await fetch("api/" + path, opts);
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+/* ---------- Status ---------- */
+async function loadStatus() {
+  try {
+    const s = await api("status");
+    $("mqttDot").classList.toggle("ok", s.mqtt_connected);
+    $("mqttText").textContent = s.mqtt_connected ? "MQTT verbunden"
+      : s.mqtt_configured ? "MQTT getrennt" : "Kein MQTT";
+  } catch { $("mqttText").textContent = "Backend nicht erreichbar"; }
+}
+
+/* ---------- Formular ---------- */
+async function loadCountries() {
+  try {
+    const countries = await api("countries");
+    $("selCountry").innerHTML = '<option value="">Bitte wählen …</option>' +
+      countries.map(c => `<option value="${c.code}" ${c.code==="DE"?"selected":""}>${flag(c.code)} ${c.name}</option>`).join("");
+    if ($("selCountry").value) loadSubdivisions();
+  } catch (e) {
+    $("selCountry").innerHTML = '<option value="">Fehler beim Laden</option>';
+    $("formMsg").textContent = "Länderliste: " + e.message;
+  }
+}
+
+async function loadSubdivisions() {
+  const country = $("selCountry").value;
+  const sel = $("selSub");
+  $("fieldRegion").hidden = true;
+  if (!country) { sel.disabled = true; sel.innerHTML = '<option value="">–</option>'; return; }
+  sel.disabled = true; sel.innerHTML = '<option value="">Lade …</option>';
+  try {
+    subdivisions = await api("subdivisions/" + country);
+    if (!subdivisions.length) {
+      sel.innerHTML = '<option value="">Landesweit (keine Untergliederung)</option>';
+      sel.disabled = false; return;
+    }
+    sel.innerHTML = '<option value="">Bitte wählen …</option>' +
+      subdivisions.map(s => `<option value="${s.code}" ${s.code==="DE-BY"?"selected":""}>${s.name} (${s.shortName || s.code})</option>`).join("");
+    sel.disabled = false;
+    onSubChanged();
+  } catch (e) {
+    sel.innerHTML = '<option value="">Fehler</option>';
+    $("formMsg").textContent = "Bundesländer: " + e.message;
+  }
+}
+
+function onSubChanged() {
+  const sub = subdivisions.find(s => s.code === $("selSub").value);
+  const children = (sub && sub.children) || [];
+  $("fieldRegion").hidden = children.length === 0;
+  if (children.length) {
+    $("selRegion").innerHTML = '<option value="">Gesamtes Bundesland</option>' +
+      children.map(c => `<option value="${c.code}">${c.name}</option>`).join("");
+  }
+  if (sub && !$("inpLabel").value) $("inpLabel").placeholder = sub.name;
+}
+
+async function addRegion() {
+  const country = $("selCountry").value;
+  if (!country) { $("formMsg").textContent = "Bitte einen Staat wählen."; return; }
+  const subdivision = !$("fieldRegion").hidden && $("selRegion").value
+    ? $("selRegion").value : $("selSub").value;
+  const sub = subdivisions.find(s => s.code === $("selSub").value);
+  const child = sub && (sub.children || []).find(c => c.code === $("selRegion").value);
+  const label = $("inpLabel").value.trim() ||
+    (child ? child.name : sub ? sub.name : country);
+
+  $("btnAdd").disabled = true; $("formMsg").textContent = "";
+  try {
+    await api("regions", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({country, subdivision, label, holidays_only: $("chkHolidaysOnly").checked})
+    });
+    $("inpLabel").value = ""; $("chkHolidaysOnly").checked = false;
+    await loadRegions();
+  } catch (e) { $("formMsg").textContent = e.message; }
+  $("btnAdd").disabled = false;
+}
+
+/* ---------- Regionkarten ---------- */
+function badge(states, key, label, cls) {
+  const st = states[key];
+  if (!st) return "";
+  const on = st.state === "ON";
+  const extra = on && st.attributes && (st.attributes.grund || st.attributes.name);
+  return `<span class="badge ${on ? "on " + cls : ""}" title="${extra || ""}">${label}: ${on ? "Ja" : "Nein"}</span>`;
+}
+
+function card(r) {
+  const cc = (r.country || "").slice(0, 2);
+  let body = "";
+  if (r.error) {
+    body = `<div class="err">API-Fehler: ${r.error}</div>`;
+  } else if (!r.loaded) {
+    body = `<div class="err" style="color:var(--muted)">Lade Daten …</div>`;
+  } else {
+    const s = r.states || {};
+    const strip = (r.day_strip || []).map((d, i) =>
+      `<div class="d ${d.status} ${i===0?"today":""}" title="${d.weekday} ${fmtDate(d.date)} – ${d.status}">
+         <div class="box"></div><span>${d.day}</span>
+       </div>`).join("");
+    const events = (r.preview || []).map(ev => `
+      <div class="row ${ev.laufend ? "live" : ""}">
+        <span class="ico">${ev.type === "ferien" ? "🏖️" : "★"}</span>
+        <span class="name">${ev.name}${ev.type === "ferien" ? ` <span class="mono" style="color:var(--muted)">${fmtDate(ev.start)}–${fmtDate(ev.end)}</span>` : ` <span class="mono" style="color:var(--muted)">${fmtDate(ev.start)}</span>`}</span>
+        <span class="when">${ev.laufend ? "läuft" : fmtIn(ev.in_tagen)}</span>
+      </div>`).join("");
+    body = `
+      <div class="badges">
+        ${badge(s, "heute_schulfrei", "Heute schulfrei", "")}
+        ${badge(s, "morgen_schulfrei", "Morgen schulfrei", "")}
+        ${badge(s, "heute_feiertag", "Heute Feiertag", "ft")}
+        ${badge(s, "morgen_feiertag", "Morgen Feiertag", "ft")}
+      </div>
+      <div>
+        <div class="strip">${strip}</div>
+        <div class="legend" style="margin-top:7px">
+          <span><i style="background:var(--ferien)"></i>Ferien</span>
+          <span><i style="background:var(--feiertag)"></i>Feiertag</span>
+          ${r.holidays_only ? "" : '<span><i style="background:color-mix(in srgb,#8a94a3 35%,transparent)"></i>Wochenende</span>'}
+        </div>
+      </div>
+      <div class="next">${events || '<span style="color:var(--muted);font-size:.85rem">Keine anstehenden Termine im Zeitfenster.</span>'}</div>`;
+  }
+  return `
+  <article class="card" data-id="${r.id}">
+    <div class="card-head">
+      <span class="flag">${flag(cc)}</span>
+      <h3>${r.label}</h3>
+      <span class="code mono">${r.subdivision || r.country}</span>
+      ${r.holidays_only ? '<span class="tag">Nur Feiertage</span>' : ""}
+    </div>
+    ${body}
+    <div class="card-foot">
+      <button class="ghost" onclick="refreshRegion('${r.id}')">Neu laden</button>
+      <button class="ghost danger" onclick="deleteRegion('${r.id}', '${r.label.replace(/'/g, "\\'")}')">Entfernen</button>
+    </div>
+  </article>`;
+}
+
+async function loadRegions() {
+  try {
+    const regions = await api("regions");
+    $("grid").innerHTML = regions.map(card).join("");
+    $("empty").hidden = regions.length > 0;
+  } catch (e) {
+    $("grid").innerHTML = `<div class="err">Regionen konnten nicht geladen werden: ${e.message}</div>`;
+  }
+}
+
+async function refreshRegion(id) {
+  try { await api(`regions/${id}/refresh`, {method: "POST"}); await loadRegions(); }
+  catch (e) { alert("Aktualisieren fehlgeschlagen: " + e.message); }
+}
+
+async function deleteRegion(id, label) {
+  if (!confirm(`Region „${label}" entfernen? Die zugehörigen Entitäten werden aus Home Assistant gelöscht.`)) return;
+  try { await api("regions/" + id, {method: "DELETE"}); await loadRegions(); }
+  catch (e) { alert("Entfernen fehlgeschlagen: " + e.message); }
+}
+
+$("selCountry").addEventListener("change", loadSubdivisions);
+$("selSub").addEventListener("change", onSubChanged);
+$("btnAdd").addEventListener("click", addRegion);
+
+loadStatus(); loadCountries(); loadRegions();
+setInterval(loadStatus, 15000);
+setInterval(loadRegions, 60000);
+</script>
+</body>
+</html>
