@@ -64,4 +64,4 @@ Dann **Schulferien & Feiertage Manager** installieren, starten und das Panel **�
 
 ## Haftungsausschluss
 
-Dieser Code wurde **vollständig mit KI (Claude von Anthropic) erstellt**. Die Nutzung erfolgt auf eigene Gefahr – **jegliche Haftung ist ausgeschlossen** (MIT-Lizenz). Es findet **kein Support** statt.
+Dieser Code wurde **vollständig mit KI erstellt**. Die Nutzung erfolgt auf eigene Gefahr – **jegliche Haftung ist ausgeschlossen** (MIT-Lizenz). Es findet **kein Support** statt.
