@@ -76,6 +76,7 @@ def build_states(region: dict, data: dict, today: date | None = None) -> dict:
         "attributes": {
             "datum": next_pub["start"].isoformat() if next_pub else None,
             "in_tagen": (next_pub["start"] - today).days if next_pub else None,
+            "vorschau": build_day_strip(data, holidays_only, today=today),
         },
     }
 
@@ -143,6 +144,7 @@ def build_combined_state(region: dict, data: dict, today: date | None = None) ->
         "naechster_feiertag": next_pub["name"] if next_pub else None,
         "naechster_feiertag_datum": next_pub["start"].isoformat() if next_pub else None,
         "naechster_feiertag_in_tagen": (next_pub["start"] - today).days if next_pub else None,
+        "vorschau": build_day_strip(data, holidays_only, today=today),
     }
 
     if holidays_only:

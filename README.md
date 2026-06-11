@@ -48,6 +48,25 @@ Besondere Modi:
 2. **Schulferien & Feiertage Manager** installieren und starten.
 3. Panel **„Schulferien"** in der Sidebar öffnen und Regionen anlegen.
 
+## Dashboard-Karte
+
+Im Ordner [`www/`](www/) liegt eine Custom Lovelace Card (`schulferien-card.js`) im Stil des Add-on-Panels: Status-Badges, 14-Tage-Streifen und nächste Termine. Sie funktioniert mit allen drei Modi (einzelne Entitäten, „Nur Feiertage", kombinierte Entität).
+
+**Installation:**
+1. `www/schulferien-card.js` nach `/config/www/` kopieren.
+2. *Einstellungen → Dashboards → ⋮ → Ressourcen* → `/local/schulferien-card.js` als **JavaScript-Modul** hinzufügen (danach Browser-Cache leeren).
+3. Karte einfügen:
+
+```yaml
+type: custom:schulferien-card
+title: Schulferien Bayern
+prefix: schulferien_bayern   # bzw. feiertage_bayern bei "Nur Feiertage"
+# suffix: kinder             # optional, falls beim Anlegen vergeben
+# show_strip: false          # 14-Tage-Streifen ausblenden
+```
+
+Der `prefix` ist der Teil der Entity-IDs vor dem Entitätsnamen – einfach aus der Infobox „Entitäten" im Add-on ablesen (z. B. `binary_sensor.schulferien_bayern_heute_schulfrei` → `schulferien_bayern`). Voraussetzung ist Add-on-Version ≥ 1.2.0 (liefert das `vorschau`-Attribut für den Tagesstreifen).
+
 ## Datenquellen
 
 Alle Datenquellen sind frei nutzbar und benötigen **keinen API-Key**. Primär- und Fallback-API sind in den Einstellungen des Add-ons wählbar; vor dem Speichern wird die Verfügbarkeit live getestet.

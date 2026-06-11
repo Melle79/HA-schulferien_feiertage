@@ -39,3 +39,8 @@
 
 - Fix: Entity-IDs mit Umlauten im Namen (Nächster Feiertag, Nächste Schulferien) wichen von den angezeigten IDs ab, weil HA das veraltete `object_id` seit Core 2026.4 ignoriert. Discovery nutzt jetzt `default_entity_id` (benötigt HA Core ≥ 2025.10).
 - Fix: Kopieren der Entity-IDs funktioniert jetzt auch im Ingress-Panel (HTTP) per Fallback; sichtbare Rückmeldung "✓ in Zwischenablage kopiert" bzw. Fehlerhinweis.
+
+## 1.2.0
+
+- Neues Attribut `vorschau` (14-Tage-Status) an "Nächster Feiertag" bzw. der kombinierten Status-Entität
+- Custom Lovelace Card `schulferien-card` im Repo (www/schulferien-card.js): Badges, 14-Tage-Streifen, nächste Termine; unterstützt alle Modi inkl. Suffix
