@@ -4,8 +4,6 @@ Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Sc
 
 [![Repository zu Home Assistant hinzufügen](https://img.shields.io/badge/Repository_zu-Home_Assistant_hinzufügen-41BDF5?logo=home-assistant&logoColor=white&style=for-the-badge)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FMelle79%2FHA-schulferien_feiertage)
 
-*Hinweis: Falls der Dialog in HA nicht vorbefüllt erscheint (bekannter my.home-assistant.io-Bug), die Repo-URL einfach manuell unter Add-on Store → ⋮ → Repositories eintragen.*
-
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_me_a_coffee-melle79-FFDD00?logo=buymeacoffee&logoColor=black&style=for-the-badge)](https://buymeacoffee.com/melle79)
 
 ## Funktionen
@@ -86,4 +84,4 @@ MIT – siehe [LICENSE](LICENSE).
 
 ## Haftungsausschluss
 
-Dieser Code wurde **vollständig mit KI erstellt**. Die Nutzung erfolgt auf eigene Gefahr – **jegliche Haftung ist ausgeschlossen** (siehe auch MIT-Lizenz). Es findet **kein Support** statt; Issues und Pull Requests werden möglicherweise nicht beantwortet.
+Dies ist ein **privates Hobby-Projekt** ohne kommerziellen Hintergrund. Die Nutzung erfolgt auf eigene Gefahr – **jegliche Haftung ist ausgeschlossen** (siehe auch MIT-Lizenz). Es findet **kein Support** statt; Issues und Pull Requests werden möglicherweise nicht beantwortet.
