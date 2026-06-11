@@ -73,6 +73,8 @@
     cursor:copy; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   details.entbox code:hover{border-color:var(--accent)}
+  details.entbox code.copied{border-color:var(--frei); color:var(--frei)}
+  details.entbox code.copyfail{border-color:var(--danger); color:var(--danger)}
   .meta{font-size:.74rem; color:var(--muted)}
   .form-msg{margin-top:10px; font-size:.85rem; color:var(--danger); min-height:1.2em}
 
@@ -307,11 +309,31 @@ async function saveSettings() {
   $("btnSaveSettings").disabled = false;
 }
 
-function copyEntity(el) {
-  navigator.clipboard?.writeText(el.textContent).then(() => {
-    const t = el.textContent; el.textContent = "✓ kopiert";
-    setTimeout(() => el.textContent = t, 900);
-  });
+async function copyEntity(el) {
+  const text = el.dataset.eid || el.textContent;
+  let ok = false;
+  // 1) Moderne Clipboard-API (nur in HTTPS-/Secure-Kontexten verfügbar)
+  if (navigator.clipboard && window.isSecureContext) {
+    try { await navigator.clipboard.writeText(text); ok = true; } catch {}
+  }
+  // 2) Fallback für HTTP/Ingress: verstecktes Textfeld + execCommand
+  if (!ok) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;left:-9999px;top:0";
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    try { ok = document.execCommand("copy"); } catch { ok = false; }
+    ta.remove();
+  }
+  el.classList.remove("copied", "copyfail");
+  el.classList.add(ok ? "copied" : "copyfail");
+  el.textContent = ok ? "✓ in Zwischenablage kopiert" : "✗ Kopieren nicht möglich – bitte manuell markieren";
+  setTimeout(() => {
+    el.textContent = text;
+    el.classList.remove("copied", "copyfail");
+  }, 1400);
 }
 
 /* ---------- Formular ---------- */
@@ -438,7 +460,7 @@ function card(r) {
     <details class="entbox">
       <summary>Entitäten (${r.entities.length}) – zum Kopieren anklicken</summary>
       <div class="entlist">${r.entities.map(e =>
-        `<code onclick="copyEntity(this)" title="${e.name}">${e.entity_id}</code>`).join("")}</div>
+        `<code onclick="copyEntity(this)" data-eid="${e.entity_id}" title="${e.name} – klicken zum Kopieren">${e.entity_id}</code>`).join("")}</div>
     </details>` : "";
   const apiUsed = r.api_used && Object.values(r.api_used).filter(Boolean);
   const meta = r.fetched ? `<div class="meta">Quelle: ${[...new Set(apiUsed || [])].join(" + ") || "–"} · Aktualisiert: ${new Date(r.fetched * 1000).toLocaleString("de-DE", {day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</div>` : "";

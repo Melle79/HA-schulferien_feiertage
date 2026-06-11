@@ -34,3 +34,8 @@
 ## 1.1.2
 
 - Fix: Entitäten wurden nicht angelegt, wenn publiziert wurde, bevor die MQTT-Verbindung stand (z. B. direkt nach Add-on-Start/-Update). Publishes laufen jetzt mit QoS 1 (werden gepuffert), zusätzlich werden nach jedem (Re-)Connect alle Regionen automatisch neu publiziert.
+
+## 1.1.3
+
+- Fix: Entity-IDs mit Umlauten im Namen (Nächster Feiertag, Nächste Schulferien) wichen von den angezeigten IDs ab, weil HA das veraltete `object_id` seit Core 2026.4 ignoriert. Discovery nutzt jetzt `default_entity_id` (benötigt HA Core ≥ 2025.10).
+- Fix: Kopieren der Entity-IDs funktioniert jetzt auch im Ingress-Panel (HTTP) per Fallback; sichtbare Rückmeldung "✓ in Zwischenablage kopiert" bzw. Fehlerhinweis.

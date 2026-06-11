@@ -142,7 +142,8 @@ class Publisher:
             payload = {
                 "name": name,
                 "unique_id": f"schulferien_{rid}_{key}",
-                "object_id": object_id(region, key),
+                # object_id ist seit HA 2025.10 deprecated, ab 2026.4 entfernt
+                "default_entity_id": f"{component}.{object_id(region, key)}",
                 "state_topic": f"{BASE_TOPIC}/{rid}/{key}/state",
                 "json_attributes_topic": f"{BASE_TOPIC}/{rid}/{key}/attributes",
                 "availability_topic": AVAILABILITY_TOPIC,

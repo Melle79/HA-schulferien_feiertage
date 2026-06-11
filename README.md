@@ -38,6 +38,7 @@ Besondere Modi:
 
 ## Voraussetzungen
 
+- Home Assistant Core **2025.10 oder neuer** (Discovery nutzt `default_entity_id`)
 - MQTT-Broker (z. B. das offizielle **Mosquitto broker** Add-on) und die MQTT-Integration in Home Assistant. Die Zugangsdaten holt sich das Add-on automatisch vom Supervisor.
 
 ## Installation
