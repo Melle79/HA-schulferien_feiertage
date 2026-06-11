@@ -26,3 +26,7 @@
 - Unterregionen erscheinen nur noch unter ihrem Bundesland (Augsburg-Fix)
 - Regionale Feiertage (z. B. Friedensfest) nur noch bei passender Region
 - README: Badge auf shields.io umgestellt, Haftungsausschluss ergänzt
+
+## 1.1.1
+
+- Dokumentation überarbeitet: Datenquellen-Übersicht (alle drei APIs), Entity-Naming-Schema, kombinierter Modus, Suffix

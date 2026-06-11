@@ -1,6 +1,6 @@
 # HA Schulferien & Feiertage
 
-Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Schulferien und gesetzliche Feiertage von der offiziellen [OpenHolidays API](https://www.openholidaysapi.org) als Entitäten in Home Assistant – verwaltet über eine eigene Weboberfläche.
+Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Schulferien und gesetzliche Feiertage aus frei verfügbaren Open-Data-APIs (ohne API-Key) als Entitäten in Home Assistant – verwaltet über eine eigene Weboberfläche mit Vorschau, wählbarer Datenquelle und Fallback-API.
 
 [![Repository zu Home Assistant hinzufügen](https://img.shields.io/badge/Repository_zu-Home_Assistant_hinzufügen-41BDF5?logo=home-assistant&logoColor=white&style=for-the-badge)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FMelle79%2FHA-schulferien_feiertage)
 
@@ -29,7 +29,12 @@ Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Sc
 | Nächster Feiertag | sensor | `datum`, `in_tagen` |
 | Nächste Schulferien | sensor | `beginn`, `ende`, `in_tagen`, `dauer_tage`, `aktuell_ferien` |
 
-Im Modus „Nur Feiertage" werden nur die drei Feiertags-Entitäten angelegt.
+Entity-ID-Schema: `schulferien_<name>[_suffix]_<entität>`, z. B. `binary_sensor.schulferien_bayern_heute_schulfrei`.
+
+Besondere Modi:
+- **Nur Feiertage**: es werden nur die drei Feiertags-Entitäten angelegt, mit Präfix `feiertage_` statt `schulferien_` (z. B. `binary_sensor.feiertage_bayern_heute_feiertag`).
+- **Kombinierte Entität**: eine einzige `sensor`-Entität je Region (`sensor.schulferien_<name>_status`). State = `Schule` / `Ferien` / `Feiertag` / `Wochenende` (bzw. `Feiertag` / `Kein Feiertag` bei „Nur Feiertage"), alle Detaildaten liegen in den Attributen.
+- **Suffix**: optionaler Namenszusatz je Region für eindeutige Entity-IDs; die tatsächlich erzeugten IDs zeigt die Infobox „Entitäten" auf der Regionskarte (Klick = kopieren).
 
 ## Voraussetzungen
 
@@ -42,9 +47,19 @@ Im Modus „Nur Feiertage" werden nur die drei Feiertags-Entitäten angelegt.
 2. **Schulferien & Feiertage Manager** installieren und starten.
 3. Panel **„Schulferien"** in der Sidebar öffnen und Regionen anlegen.
 
-## Datenquelle
+## Datenquellen
 
-[OpenHolidays API](https://www.openholidaysapi.org) – offenes Open-Data-Projekt mit Schulferien und Feiertagen für Deutschland (alle Bundesländer) und viele weitere Länder. Kein API-Key erforderlich.
+Alle Datenquellen sind frei nutzbar und benötigen **keinen API-Key**. Primär- und Fallback-API sind in den Einstellungen des Add-ons wählbar; vor dem Speichern wird die Verfügbarkeit live getestet.
+
+| API | Schulferien | Feiertage | Abdeckung | Link |
+|---|---|---|---|---|
+| **OpenHolidays API** (Standard) | ✅ | ✅ | International, u. a. alle deutschen Bundesländer inkl. Unterregionen (z. B. Augsburg) | [openholidaysapi.org](https://www.openholidaysapi.org) |
+| **ferien-api.de + feiertage-api.de** | ✅ | ✅ | Nur Deutschland | [ferien-api.de](https://ferien-api.de) · [feiertage-api.de](https://feiertage-api.de) |
+| **Nager.Date** | ❌ | ✅ | International (über 100 Länder) | [date.nager.at](https://date.nager.at) |
+
+Fällt die primäre API beim Datenabruf aus, übernimmt automatisch die konfigurierte Fallback-API; die genutzte Quelle wird auf jeder Regionskarte unter „Quelle:" angezeigt. Die Daten werden je nach Einstellung alle 12 oder 24 Stunden aktualisiert (Zeitfenster: 14 Tage rückwirkend bis 18 Monate voraus), zusätzlich ist ein manueller Refresh pro Region möglich.
+
+*Hinweis: Die Richtigkeit und Vollständigkeit der Daten liegt bei den jeweiligen API-Betreibern – für verbindliche Termine bitte die offiziellen Quellen der Bundesländer prüfen.*
 
 ## Lizenz
 
