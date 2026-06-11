@@ -100,6 +100,8 @@ def build_states(region: dict, data: dict, today: date | None = None) -> dict:
                 if next_school
                 else None,
                 "aktuell_ferien": current["name"] if current else None,
+                "aktuell_ferien_beginn": current["start"].isoformat() if current else None,
+                "aktuell_ferien_ende": current["end"].isoformat() if current else None,
             },
         }
 
@@ -170,6 +172,8 @@ def build_combined_state(region: dict, data: dict, today: date | None = None) ->
             if next_school
             else None,
             "aktuell_ferien": current["name"] if current else None,
+            "aktuell_ferien_beginn": current["start"].isoformat() if current else None,
+            "aktuell_ferien_ende": current["end"].isoformat() if current else None,
         }
     )
 

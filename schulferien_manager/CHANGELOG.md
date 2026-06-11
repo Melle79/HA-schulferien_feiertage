@@ -44,3 +44,7 @@
 
 - Neues Attribut `vorschau` (14-Tage-Status) an "Nächster Feiertag" bzw. der kombinierten Status-Entität
 - Custom Lovelace Card `schulferien-card` im Repo (www/schulferien-card.js): Badges, 14-Tage-Streifen, nächste Termine; unterstützt alle Modi inkl. Suffix
+
+## 1.2.1
+
+- Neue Attribute `aktuell_ferien_beginn` und `aktuell_ferien_ende` an "Nächste Schulferien" bzw. der kombinierten Entität (für den Ferien-Banner der Schulferien Card)
