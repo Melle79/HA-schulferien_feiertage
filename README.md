@@ -50,27 +50,17 @@ Besondere Modi:
 
 ## Dashboard-Karte
 
-Im Ordner [`dist/`](dist/) liegt eine Custom Lovelace Card (`schulferien-card.js`) im Stil des Add-on-Panels: Status-Badges, 14-Tage-Streifen und nächste Termine. Sie funktioniert mit allen drei Modi (einzelne Entitäten, „Nur Feiertage", kombinierte Entität).
+Passend zum Add-on gibt es die **[Schulferien Card](https://github.com/Melle79/HA-schulferien-card)** – eine Custom Lovelace Card mit Status-Badges, 14-Tage-Streifen und den nächsten Terminen, für alle Modi (einzelne Entitäten, „Nur Feiertage", kombinierte Entität).
 
-**Installation über HACS (empfohlen):**
-1. HACS → ⋮ (oben rechts) → **Benutzerdefinierte Repositories** → URL `https://github.com/Melle79/HA-schulferien_feiertage`, Typ **Dashboard** → hinzufügen.
-2. „Schulferien Card" suchen und installieren – HACS trägt die Ressource automatisch ein und liefert künftige Updates mit.
-3. Browser-Cache leeren und Karte einfügen (siehe unten).
-
-**Manuelle Installation (Alternative):**
-1. `dist/schulferien-card.js` nach `/config/www/` kopieren.
-2. *Einstellungen → Dashboards → ⋮ → Ressourcen* → `/local/schulferien-card.js` als **JavaScript-Modul** hinzufügen (danach Browser-Cache leeren).
-3. Karte einfügen:
+**Installation über HACS:** HACS → ⋮ → Benutzerdefinierte Repositories → `https://github.com/Melle79/HA-schulferien-card`, Typ **Dashboard** → „Schulferien Card" installieren. Konfiguration und Beispiele stehen im [Karten-Repository](https://github.com/Melle79/HA-schulferien-card).
 
 ```yaml
 type: custom:schulferien-card
 title: Schulferien Bayern
-prefix: schulferien_bayern   # bzw. feiertage_bayern bei "Nur Feiertage"
-# suffix: kinder             # optional, falls beim Anlegen vergeben
-# show_strip: false          # 14-Tage-Streifen ausblenden
+prefix: schulferien_bayern
 ```
 
-Der `prefix` ist der Teil der Entity-IDs vor dem Entitätsnamen – einfach aus der Infobox „Entitäten" im Add-on ablesen (z. B. `binary_sensor.schulferien_bayern_heute_schulfrei` → `schulferien_bayern`). Voraussetzung ist Add-on-Version ≥ 1.2.0 (liefert das `vorschau`-Attribut für den Tagesstreifen).
+Voraussetzung: Add-on-Version ≥ 1.2.0 (liefert das `vorschau`-Attribut für den Tagesstreifen).
 
 ## Datenquellen
 
