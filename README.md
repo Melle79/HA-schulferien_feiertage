@@ -52,7 +52,9 @@ Besondere Modi:
 
 Passend zum Add-on gibt es die **[Schulferien Card](https://github.com/Melle79/HA-schulferien-card)** – eine Custom Lovelace Card mit Status-Badges, 14-Tage-Streifen und den nächsten Terminen, für alle Modi (einzelne Entitäten, „Nur Feiertage", kombinierte Entität).
 
-**Installation über HACS:** HACS → ⋮ → Benutzerdefinierte Repositories → `https://github.com/Melle79/HA-schulferien-card`, Typ **Dashboard** → „Schulferien Card" installieren. Konfiguration und Beispiele stehen im [Karten-Repository](https://github.com/Melle79/HA-schulferien-card).
+[![In HACS öffnen](https://img.shields.io/badge/HACS-Karte_in_Home_Assistant_öffnen-41BDF5?logo=home-assistant&logoColor=white&style=for-the-badge)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Melle79&repository=HA-schulferien-card&category=dashboard)
+
+**Installation über HACS:** Badge anklicken oder manuell: HACS → ⋮ → Benutzerdefinierte Repositories → `https://github.com/Melle79/HA-schulferien-card`, Typ **Dashboard** → „Schulferien Card" installieren. Konfiguration und Beispiele stehen im [Karten-Repository](https://github.com/Melle79/HA-schulferien-card).
 
 ```yaml
 type: custom:schulferien-card
