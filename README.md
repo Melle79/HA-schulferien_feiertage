@@ -50,10 +50,15 @@ Besondere Modi:
 
 ## Dashboard-Karte
 
-Im Ordner [`www/`](www/) liegt eine Custom Lovelace Card (`schulferien-card.js`) im Stil des Add-on-Panels: Status-Badges, 14-Tage-Streifen und nächste Termine. Sie funktioniert mit allen drei Modi (einzelne Entitäten, „Nur Feiertage", kombinierte Entität).
+Im Ordner [`dist/`](dist/) liegt eine Custom Lovelace Card (`schulferien-card.js`) im Stil des Add-on-Panels: Status-Badges, 14-Tage-Streifen und nächste Termine. Sie funktioniert mit allen drei Modi (einzelne Entitäten, „Nur Feiertage", kombinierte Entität).
 
-**Installation:**
-1. `www/schulferien-card.js` nach `/config/www/` kopieren.
+**Installation über HACS (empfohlen):**
+1. HACS → ⋮ (oben rechts) → **Benutzerdefinierte Repositories** → URL `https://github.com/Melle79/HA-schulferien_feiertage`, Typ **Dashboard** → hinzufügen.
+2. „Schulferien Card" suchen und installieren – HACS trägt die Ressource automatisch ein und liefert künftige Updates mit.
+3. Browser-Cache leeren und Karte einfügen (siehe unten).
+
+**Manuelle Installation (Alternative):**
+1. `dist/schulferien-card.js` nach `/config/www/` kopieren.
 2. *Einstellungen → Dashboards → ⋮ → Ressourcen* → `/local/schulferien-card.js` als **JavaScript-Modul** hinzufügen (danach Browser-Cache leeren).
 3. Karte einfügen:
 
