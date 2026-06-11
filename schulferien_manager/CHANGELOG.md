@@ -48,3 +48,8 @@
 ## 1.2.1
 
 - Neue Attribute `aktuell_ferien_beginn` und `aktuell_ferien_ende` an "Nächste Schulferien" bzw. der kombinierten Entität (für den Ferien-Banner der Schulferien Card)
+
+## 1.3.0
+
+- Aktualisierung zu festen Zeiten statt rollierendem Intervall: täglich 00:05 Uhr, optional zusätzlich 12:00 Uhr (Einstellung "Aktualisierung")
+- Robuster bei API-Ausfällen: vorhandene Daten bleiben bei Fehlern erhalten, automatischer erneuter Versuch alle 30 Minuten

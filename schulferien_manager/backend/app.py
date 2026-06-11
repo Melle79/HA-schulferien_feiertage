@@ -5,7 +5,7 @@ import logging
 import os
 import threading
 import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from flask import Flask, jsonify, request, send_from_directory
 
@@ -72,6 +72,8 @@ def refresh_region(region: dict) -> dict:
     valid_from = today - timedelta(days=FETCH_PAST_DAYS)
     valid_to = today + timedelta(days=FETCH_FUTURE_DAYS)
 
+    with _data_lock:
+        old = region_data.get(rid)
     entry = {"school": [], "public": [], "fetched": time.time(), "error": None, "api_used": {}}
     try:
         entry["public"], pid = _fetch_with_fallback("public", region, valid_from, valid_to)
@@ -88,6 +90,11 @@ def refresh_region(region: dict) -> dict:
     except Exception as err:  # noqa: BLE001
         entry["error"] = str(err)
         _LOGGER.error("Region %s: API-Fehler: %s", region["label"], err)
+        if old is not None:
+            # Alte Daten behalten, damit Entitäten weiter korrekt rechnen
+            entry["school"] = old.get("school", [])
+            entry["public"] = old.get("public", [])
+            entry["api_used"] = old.get("api_used", {})
 
     with _data_lock:
         region_data[rid] = entry
@@ -126,17 +133,32 @@ def republish_all() -> None:
         _LOGGER.info("Re-Publish nach MQTT-Connect: %d Regionen", count)
 
 
+def _fetch_slots() -> list[str]:
+    """Feste Abrufzeiten je nach Einstellung: täglich 00:05, optional zusätzlich 12:00."""
+    interval = store.load_settings()["update_interval_hours"]
+    return ["00:05", "12:00"] if interval == 12 else ["00:05"]
+
+
 def _scheduler() -> None:
-    """Alle 12 h neu laden; bei Datumswechsel Zustände neu publizieren."""
+    """Feste Abrufzeiten; bei Datumswechsel Zustände neu publizieren; Fehler-Retry."""
     last_day = date.today()
+    done_slots: set[tuple[date, str]] = set()
+    # Bereits vergangene Slots von heute überspringen (Startabruf läuft separat)
+    now_dt = datetime.now()
+    for slot in ("00:05", "12:00"):
+        h, m = (int(x) for x in slot.split(":"))
+        if (now_dt.hour, now_dt.minute) >= (h, m):
+            done_slots.add((last_day, slot))
+
     while True:
         time.sleep(60)
         try:
-            now = time.time()
+            now_dt = datetime.now()
             regions = store.load_regions()
 
             if date.today() != last_day:
                 last_day = date.today()
+                done_slots = {s for s in done_slots if s[0] == last_day}
                 _LOGGER.info("Datumswechsel – Zustände werden neu berechnet")
                 for region in regions:
                     with _data_lock:
@@ -144,11 +166,21 @@ def _scheduler() -> None:
                     if publisher and entry and entry.get("error") is None:
                         publisher.publish_states(region, _states_for_publish(region, entry))
 
+            for slot in _fetch_slots():
+                h, m = (int(x) for x in slot.split(":"))
+                if (last_day, slot) not in done_slots and (now_dt.hour, now_dt.minute) >= (h, m):
+                    done_slots.add((last_day, slot))
+                    _LOGGER.info("Geplante Aktualisierung (%s Uhr)", slot)
+                    refresh_all()
+
+            # Neue Regionen ohne Daten sowie Fehler-Retry alle 30 Minuten
             for region in regions:
                 with _data_lock:
                     entry = region_data.get(region["id"])
-                interval = store.load_settings()["update_interval_hours"] * 3600
-                if entry is None or now - entry["fetched"] > interval:
+                if entry is None:
+                    refresh_region(region)
+                elif entry.get("error") and time.time() - entry["fetched"] > 1800:
+                    _LOGGER.info("Region %s: erneuter Versuch nach Fehler", region["label"])
                     refresh_region(region)
         except Exception as err:  # noqa: BLE001
             _LOGGER.error("Scheduler-Fehler: %s", err)

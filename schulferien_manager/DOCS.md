@@ -13,7 +13,7 @@ Add-on mit eigener Weboberfläche (Ingress-Panel in der Sidebar), das Schulferie
 - **Kombinierter Modus**: eine einzelne Entität je Region mit allen Daten als Attribute
 - **Optionales Suffix** je Region für die Entity-IDs; alle erzeugten IDs zeigt die Infobox „Entitäten" (Klick = kopieren)
 - **Übersicht mit Vorschau**: Status-Badges (heute/morgen), 14-Tage-Streifen (Ferien = gelb, Feiertag = blau, Wochenende = grau, heute umrandet) und Terminliste je Region
-- **Aktualisierungsintervall wählbar** (12 oder 24 h) plus manueller Refresh je Region
+- **Aktualisierung zu festen Zeiten** (täglich 00:00, optional zusätzlich 12:00 Uhr) plus manueller Refresh je Region; bei API-Fehlern bleiben die letzten Daten erhalten und es wird automatisch erneut versucht
 - Statusleiste: Version, API-Verfügbarkeit (Stand der letzten Aktualisierung), MQTT-Status, Zeitpunkt der letzten Aktualisierung
 - Regionale Feiertage (z. B. Augsburger Friedensfest) erscheinen nur bei passend angelegter Region
 - Tägliche Neuberechnung nach Mitternacht, Konfiguration persistent in `/data/`

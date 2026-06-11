@@ -14,7 +14,7 @@ Home Assistant Add-on-Repository mit dem **Schulferien & Feiertage Manager**: Sc
 - **„Nur Feiertage"-Modus** pro Region – Entitäten heißen dann `feiertage_…` statt `schulferien_…`
 - **Kombinierter Modus**: wahlweise eine einzelne Entität je Region mit allen Daten als Attribute
 - **Eigenes Suffix** pro Region für die Entity-IDs; alle erzeugten Entitäten werden in der UI in einer Infobox angezeigt (Klick = kopieren)
-- **Aktualisierungsintervall wählbar** (12 oder 24 h) plus manueller Refresh; Status zeigt API-Verfügbarkeit und Zeitpunkt der letzten Aktualisierung
+- **Aktualisierung zu festen Zeiten** (täglich 00:00, optional zusätzlich 12:00 Uhr) plus manueller Refresh; Status zeigt API-Verfügbarkeit und Zeitpunkt der letzten Aktualisierung
 - Regionale Feiertage (z. B. Augsburger Friedensfest) erscheinen nur, wenn die passende Region angelegt ist
 - Entitäten via **MQTT Discovery** (retained), automatischer Cleanup beim Entfernen einer Region
 
