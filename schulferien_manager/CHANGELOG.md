@@ -53,3 +53,7 @@
 
 - Aktualisierung zu festen Zeiten statt rollierendem Intervall: täglich 00:05 Uhr, optional zusätzlich 12:00 Uhr (Einstellung "Aktualisierung")
 - Robuster bei API-Ausfällen: vorhandene Daten bleiben bei Fehlern erhalten, automatischer erneuter Versuch alle 30 Minuten
+
+## 1.4.0
+
+- Neue Entität "Kalender" je Region: alle kommenden Schulferien und Feiertage (ca. 18 Monate) als Attribut-Listen (`schulferien`, `feiertage`, `zeitraum_von`/`zeitraum_bis`), State = Anzahl der Einträge. Wird in allen Modi angelegt (auch "Nur Feiertage" und kombiniert), z. B. für den Stundenplan-Manager.

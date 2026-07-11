@@ -28,6 +28,7 @@ Add-on mit eigener Weboberfläche (Ingress-Panel in der Sidebar), das Schulferie
 | `binary_sensor.schulferien_<name>_morgen_feiertag` | binary_sensor | `datum`, `name` |
 | `sensor.schulferien_<name>_naechster_feiertag` | sensor | `datum`, `in_tagen` |
 | `sensor.schulferien_<name>_naechste_schulferien` | sensor | `beginn`, `ende`, `in_tagen`, `dauer_tage`, `aktuell_ferien` |
+| `sensor.schulferien_<name>_kalender` | sensor | `schulferien` (Liste: name, beginn, ende, dauer_tage), `feiertage` (Liste: name, datum), `zeitraum_von`, `zeitraum_bis` – alle Termine für ca. 18 Monate; State = Anzahl der Einträge. Wird in jedem Modus angelegt. |
 
 Mit Suffix wird dieses an die object_id angehängt (z. B. `…_heute_schulfrei_kinder`).
 

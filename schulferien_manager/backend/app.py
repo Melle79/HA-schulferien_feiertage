@@ -107,7 +107,10 @@ def refresh_region(region: dict) -> dict:
 
 def _states_for_publish(region: dict, entry: dict) -> dict:
     if region.get("combined", False):
-        return {"status": logic.build_combined_state(region, entry)}
+        return {
+            "status": logic.build_combined_state(region, entry),
+            "kalender": logic.build_kalender_state(region, entry),
+        }
     return logic.build_states(region, entry)
 
 

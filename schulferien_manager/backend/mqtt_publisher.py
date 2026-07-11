@@ -30,14 +30,15 @@ ENTITY_DEFS_HOLIDAYS_ONLY = [
     ("sensor", "naechster_feiertag", "Nächster Feiertag", "mdi:calendar-star"),
 ]
 ENTITY_DEF_COMBINED = ("sensor", "status", "Status", "mdi:school-outline")
+ENTITY_DEF_KALENDER = ("sensor", "kalender", "Kalender", "mdi:calendar-month")
 
 
 def entity_defs(region: dict) -> list:
     if region.get("combined", False):
-        return [ENTITY_DEF_COMBINED]
+        return [ENTITY_DEF_COMBINED, ENTITY_DEF_KALENDER]
     if region.get("holidays_only", False):
-        return ENTITY_DEFS_HOLIDAYS_ONLY
-    return ENTITY_DEFS_FULL
+        return ENTITY_DEFS_HOLIDAYS_ONLY + [ENTITY_DEF_KALENDER]
+    return ENTITY_DEFS_FULL + [ENTITY_DEF_KALENDER]
 
 
 def suffix_slug(suffix: str) -> str:
@@ -165,7 +166,7 @@ class Publisher:
     def remove_region(self, region: dict) -> None:
         """Discovery- und State-Topics einer Region löschen (leere retained Payloads)."""
         rid = region["id"]
-        for component, key, _name, _icon in ENTITY_DEFS_FULL + [ENTITY_DEF_COMBINED]:
+        for component, key, _name, _icon in ENTITY_DEFS_FULL + [ENTITY_DEF_COMBINED, ENTITY_DEF_KALENDER]:
             self._publish(
                 f"{DISCOVERY_PREFIX}/{component}/schulferien_{rid}/{key}/config", ""
             )

@@ -80,6 +80,8 @@ def build_states(region: dict, data: dict, today: date | None = None) -> dict:
         },
     }
 
+    states["kalender"] = build_kalender_state(region, data, today=today)
+
     if not holidays_only:
         for key, day in (("heute_schulfrei", today), ("morgen_schulfrei", tomorrow)):
             free, grund = is_school_free(school, public, day)
@@ -186,6 +188,44 @@ def build_combined_state(region: dict, data: dict, today: date | None = None) ->
     else:
         state = "Schule"
     return {"state": state, "attributes": attrs}
+
+
+def build_kalender_state(region: dict, data: dict, today: date | None = None) -> dict:
+    """Alle kommenden Schulferien und Feiertage (~18 Monate) als Attribut-Listen."""
+    today = today or date.today()
+    holidays_only = region.get("holidays_only", False)
+
+    feiertage = [
+        {"name": p["name"], "datum": p["start"].isoformat()}
+        for p in data.get("public", [])
+        if p["start"] >= today
+    ]
+    attrs: dict = {
+        "zeitraum_von": today.isoformat(),
+        "feiertage": feiertage,
+    }
+    total = len(feiertage)
+
+    if not holidays_only:
+        schulferien = [
+            {
+                "name": p["name"],
+                "beginn": p["start"].isoformat(),
+                "ende": p["end"].isoformat(),
+                "dauer_tage": (p["end"] - p["start"]).days + 1,
+            }
+            for p in data.get("school", [])
+            if p["end"] >= today
+        ]
+        attrs["schulferien"] = schulferien
+        total += len(schulferien)
+
+    all_dates = [p["datum"] for p in feiertage]
+    if not holidays_only:
+        all_dates += [p["ende"] for p in attrs.get("schulferien", [])]
+    attrs["zeitraum_bis"] = max(all_dates) if all_dates else today.isoformat()
+
+    return {"state": str(total), "attributes": attrs}
 
 
 def build_day_strip(
