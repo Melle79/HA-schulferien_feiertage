@@ -1,5 +1,5 @@
 name: "Schulferien & Feiertage Manager"
-version: "1.4.0"
+version: "1.5.0"
 slug: "schulferien_manager"
 description: "Schulferien & Feiertage als MQTT-Entitäten – Web-UI für mehrere Regionen (OpenHolidays API)"
 url: "https://github.com/Melle79/HA-schulferien_feiertage"
@@ -14,5 +14,10 @@ panel_icon: "mdi:school-outline"
 panel_title: "Schulferien"
 services:
   - "mqtt:need"
-options: {}
-schema: {}
+homeassistant_api: true
+map:
+  - homeassistant_config:rw
+options:
+  karte_installieren: true
+schema:
+  karte_installieren: bool

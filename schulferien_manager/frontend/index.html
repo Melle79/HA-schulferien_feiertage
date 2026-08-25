@@ -177,6 +177,16 @@
     </details>
   </section>
 
+  <section class="panel" id="cardPanel" hidden>
+    <h2>Dashboard-Karte</h2>
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+      <span class="dot" id="cardDot"></span>
+      <span id="cardText" style="font-size:.9rem">wird geprüft …</span>
+      <button class="ghost" id="btnCard" style="margin-left:auto">Erneut einrichten</button>
+    </div>
+    <div class="test-msg" id="cardMsg"></div>
+  </section>
+
   <section class="panel">
     <h2>Region hinzufügen</h2>
     <div class="form-grid">
@@ -261,10 +271,38 @@ async function loadStatus() {
       $("apiText").textContent = (s.provider_name || "API") + (s.api_ok ? " verfügbar" : " gestört");
       $("apiText").title = (s.api_errors || []).join("\n");
     }
+    zeigeKarte(s.karte);
     $("refreshText").textContent = "Stand: " + (s.last_refresh
       ? new Date(s.last_refresh * 1000).toLocaleTimeString("de-DE", {hour:"2-digit",minute:"2-digit"})
       : "–");
   } catch { $("mqttText").textContent = "Backend nicht erreichbar"; }
+}
+
+/* ---------- Dashboard-Karte ---------- */
+function zeigeKarte(k) {
+  if (!k) return;
+  $("cardPanel").hidden = false;
+  $("cardDot").classList.toggle("ok", !!k.aktiv);
+  $("cardDot").style.background = k.aktiv ? "" : (k.hacs ? "var(--muted)" : "var(--danger)");
+  $("cardText").textContent = k.aktiv
+    ? `Schulferien Card v${k.version} ist eingerichtet`
+    : (k.version ? `Schulferien Card v${k.version}: ${k.meldung}` : k.meldung);
+  $("btnCard").hidden = !!k.hacs;
+}
+
+async function installCard() {
+  const msg = $("cardMsg");
+  msg.className = "test-msg"; msg.textContent = "Karte wird eingerichtet …";
+  try {
+    const k = await api("karte/installieren", {method: "POST"});
+    zeigeKarte(k);
+    msg.className = "test-msg " + (k.aktiv ? "ok" : "fail");
+    msg.textContent = k.aktiv
+      ? "Fertig – Browser einmal neu laden (Strg/Cmd+Shift+R), dann steht die Karte im Dashboard bereit."
+      : k.meldung;
+  } catch (e) {
+    msg.className = "test-msg fail"; msg.textContent = "Fehlgeschlagen: " + e.message;
+  }
 }
 
 /* ---------- Einstellungen ---------- */
@@ -510,6 +548,7 @@ $("selSub").addEventListener("change", onSubChanged);
 $("btnAdd").addEventListener("click", addRegion);
 $("btnTest").addEventListener("click", testProvider);
 $("btnSaveSettings").addEventListener("click", saveSettings);
+$("btnCard").addEventListener("click", installCard);
 
 loadStatus(); loadSettings(); loadCountries(); loadRegions();
 setInterval(loadStatus, 15000);

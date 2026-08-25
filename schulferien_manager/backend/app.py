@@ -10,6 +10,7 @@ from datetime import date, datetime, timedelta
 from flask import Flask, jsonify, request, send_from_directory
 
 import holidays_api
+import karte
 import logic
 import providers
 import store
@@ -285,8 +286,14 @@ def api_status():
             "api_errors": errors,
             "settings": settings,
             "provider_name": providers.PROVIDERS.get(settings["api_provider"], {}).get("name"),
+            "karte": karte.status(),
         }
     )
+
+
+@app.post("/api/karte/installieren")
+def api_karte_installieren():
+    return jsonify(karte.installieren())
 
 
 @app.get("/api/settings")
@@ -436,6 +443,7 @@ def main() -> None:
 
     threading.Thread(target=refresh_all, daemon=True).start()
     threading.Thread(target=_scheduler, daemon=True).start()
+    threading.Thread(target=karte.installieren, daemon=True).start()
 
     port = int(os.environ.get("PORT", "8099"))
     app.run(host="0.0.0.0", port=port)

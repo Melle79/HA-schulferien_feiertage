@@ -57,3 +57,9 @@
 ## 1.4.0
 
 - Neue Entität "Kalender" je Region: alle kommenden Schulferien und Feiertage (ca. 18 Monate) als Attribut-Listen (`schulferien`, `feiertage`, `zeitraum_von`/`zeitraum_bis`), State = Anzahl der Einträge. Wird in allen Modi angelegt (auch "Nur Feiertage" und kombiniert), z. B. für den Stundenplan-Manager.
+
+## 1.5.0
+
+- Die Dashboard-Karte "Schulferien Card" wird mitgeliefert und automatisch eingerichtet: Datei nach `www/schulferien_manager/`, Eintrag als Dashboard-Ressource über die WebSocket-API – HACS ist nicht mehr nötig. Neue Option `karte_installieren` (Standard: an)
+- Neues Panel "Dashboard-Karte" mit Status und Schalter zum erneuten Einrichten
+- Ist die Karte über HACS installiert oder laufen die Dashboards im YAML-Modus, hält sich das Add-on heraus und meldet das

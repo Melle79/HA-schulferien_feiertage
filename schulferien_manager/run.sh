@@ -11,6 +11,13 @@ else
     bashio::log.warning "Kein MQTT-Service verfügbar – Entitäten können nicht angelegt werden!"
 fi
 
+if bashio::config.true 'karte_installieren'; then
+    export KARTE_INSTALLIEREN="true"
+else
+    export KARTE_INSTALLIEREN="false"
+    bashio::log.info "Automatische Karten-Installation ist abgeschaltet"
+fi
+
 export DATA_DIR="/data"
 cd /app/backend
 exec python3 app.py
