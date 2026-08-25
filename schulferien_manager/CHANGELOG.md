@@ -63,3 +63,8 @@
 - Die Dashboard-Karte "Schulferien Card" wird mitgeliefert und automatisch eingerichtet: Datei nach `www/schulferien_manager/`, Eintrag als Dashboard-Ressource über die WebSocket-API – HACS ist nicht mehr nötig. Neue Option `karte_installieren` (Standard: an)
 - Neues Panel "Dashboard-Karte" mit Status und Schalter zum erneuten Einrichten
 - Ist die Karte über HACS installiert oder laufen die Dashboards im YAML-Modus, hält sich das Add-on heraus und meldet das
+
+## 1.5.1
+
+- Karte v1.5.0: Die Terminliste zählt wieder je Art – Standard ist **ein** kommender Feiertag und **ein** kommender Ferienzeitraum, wie vor v1.4.0. Über `anzahl_feiertage` und `anzahl_ferien` (je 1–10, auch im visuellen Editor) lassen sich beide getrennt hochdrehen; die gemeinsame Option `termine_anzahl` aus v1.4.0 entfällt
+- Die Optionen der Karte sind jetzt hier dokumentiert (vorher im inzwischen archivierten Karten-Repository)

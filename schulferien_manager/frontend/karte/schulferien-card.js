@@ -6,7 +6,7 @@
  *
  * Alle Optionen sind über den visuellen Editor einstellbar.
  */
-const CARD_VERSION = "1.4.1";
+const CARD_VERSION = "1.5.0";
 console.info(`%c SCHULFERIEN-CARD %c v${CARD_VERSION} `,
   "color:#1a1408;background:#e8a23d;font-weight:700", "color:#e8a23d;background:#1f2630");
 
@@ -49,7 +49,8 @@ const DEFAULTS = {
   strip_days: 14,
   show_feiertag: true,
   show_ferien: true,
-  termine_anzahl: 4,
+  anzahl_feiertage: 1,
+  anzahl_ferien: 1,
   suffix: "",
 };
 
@@ -212,34 +213,39 @@ class SchulferienCard extends HTMLElement {
         <span class="nm">${name}${dates ? ` <small>${dates}</small>` : ""}</span>
         <span class="when">${when}</span>
       </div></div>`;
-    const anzahl = Math.max(1, Math.min(12, Number(c.termine_anzahl) || 4));
+    const grenze = (wert) => Math.max(1, Math.min(10, Number(wert) || 1));
     const kalFt = kal?.attributes.feiertage;
     const kalFe = kal?.attributes.schulferien;
 
     if (kalFt || kalFe) {
-      // Add-on ab v1.4.0: alle Termine der nächsten ~18 Monate stehen im Kalender-Sensor
+      // Add-on ab v1.4.0: alle Termine der nächsten ~18 Monate stehen im Kalender-Sensor.
+      // Je Art wird getrennt gezählt, damit die nächsten Ferien nicht hinter mehreren
+      // Feiertagen verschwinden (und umgekehrt).
       const heute = this._heute();
       if (c.show_feiertag) {
-        for (const f of kalFt || []) {
-          if (!f.datum || f.datum < heute) continue;
+        for (const f of (kalFt || []).filter((f) => f.datum && f.datum >= heute)
+                                     .slice(0, grenze(c.anzahl_feiertage))) {
           events.push({ d: f.datum,
             html: row("", "★", f.name, this._fmt(f.datum), this._in(this._tage(f.datum))) });
         }
       }
       if (c.show_ferien) {
-        for (const f of kalFe || []) {
-          if (!f.ende || f.ende < heute) continue;
-          if (f.beginn <= heute) {
-            if (banner) continue;  // laufende Ferien zeigt schon der Banner
+        const laufend = (kalFe || []).filter((f) => f.ende >= heute && f.beginn <= heute);
+        const kommend = (kalFe || []).filter((f) => f.beginn > heute)
+                                     .slice(0, grenze(c.anzahl_ferien));
+        // Laufende Ferien zeigt schon der Banner - sonst als eigene Zeile.
+        if (!banner) {
+          for (const f of laufend) {
             events.push({ d: "0000-00-00",
               html: row("live", "🏖️", f.name, `bis ${this._fmt(f.ende)}`, "läuft gerade") });
-          } else {
-            const zeitraum = f.beginn === f.ende
-              ? this._fmt(f.beginn)
-              : `${this._fmt(f.beginn)} – ${this._fmt(f.ende)}`;
-            events.push({ d: f.beginn,
-              html: row("", "🏖️", f.name, zeitraum, this._in(this._tage(f.beginn))) });
           }
+        }
+        for (const f of kommend) {
+          const zeitraum = f.beginn === f.ende
+            ? this._fmt(f.beginn)
+            : `${this._fmt(f.beginn)} – ${this._fmt(f.ende)}`;
+          events.push({ d: f.beginn,
+            html: row("", "🏖️", f.name, zeitraum, this._in(this._tage(f.beginn))) });
         }
       }
     } else {
@@ -258,7 +264,7 @@ class SchulferienCard extends HTMLElement {
       }
     }
     events.sort((x, y) => x.d.localeCompare(y.d));
-    const rows = events.slice(0, anzahl).map((e) => e.html);
+    const rows = events.map((e) => e.html);
     const rowsHtml = (c.show_feiertag || c.show_ferien)
       ? `<div class="rows">${rows.join("") || "<small>Keine anstehenden Termine.</small>"}</div>`
       : "";
@@ -344,7 +350,8 @@ const EDITOR_LABELS = {
   strip_days: "Tage im Streifen",
   show_feiertag: "Feiertage in der Terminliste",
   show_ferien: "Schulferien in der Terminliste",
-  termine_anzahl: "Termine in der Liste (ab Add-on v1.4.0)",
+  anzahl_feiertage: "Wie viele Feiertage",
+  anzahl_ferien: "Wie viele Ferien",
 };
 
 class SchulferienCardEditor extends HTMLElement {
@@ -380,7 +387,8 @@ class SchulferienCardEditor extends HTMLElement {
         if (v.show_feiertag === false) config.show_feiertag = false;
         if (v.show_ferien === false) config.show_ferien = false;
         if (v.strip_days && Number(v.strip_days) !== 14) config.strip_days = Number(v.strip_days);
-        if (v.termine_anzahl && Number(v.termine_anzahl) !== 4) config.termine_anzahl = Number(v.termine_anzahl);
+        if (v.anzahl_feiertage && Number(v.anzahl_feiertage) !== 1) config.anzahl_feiertage = Number(v.anzahl_feiertage);
+        if (v.anzahl_ferien && Number(v.anzahl_ferien) !== 1) config.anzahl_ferien = Number(v.anzahl_ferien);
         this._config = { ...DEFAULTS, ...config };
         this.dispatchEvent(new CustomEvent("config-changed",
           { detail: { config }, bubbles: true, composed: true }));
@@ -415,7 +423,10 @@ class SchulferienCardEditor extends HTMLElement {
       { name: "strip_days", selector: { number: { min: 3, max: 14, step: 1, mode: "slider" } } },
       { name: "show_feiertag", selector: { boolean: {} } },
       { name: "show_ferien", selector: { boolean: {} } },
-      { name: "termine_anzahl", selector: { number: { min: 1, max: 12, step: 1, mode: "slider" } } },
+      { name: "", type: "grid", schema: [
+        { name: "anzahl_feiertage", selector: { number: { min: 1, max: 10, step: 1, mode: "box" } } },
+        { name: "anzahl_ferien", selector: { number: { min: 1, max: 10, step: 1, mode: "box" } } },
+      ] },
     ];
     this._form.data = {
       region: current,
@@ -430,7 +441,8 @@ class SchulferienCardEditor extends HTMLElement {
       strip_days: Number(this._config.strip_days) || 14,
       show_feiertag: this._config.show_feiertag !== false,
       show_ferien: this._config.show_ferien !== false,
-      termine_anzahl: Number(this._config.termine_anzahl) || 4,
+      anzahl_feiertage: Number(this._config.anzahl_feiertage) || 1,
+      anzahl_ferien: Number(this._config.anzahl_ferien) || 1,
     };
   }
 }

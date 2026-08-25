@@ -68,6 +68,38 @@ Zwei Fälle, in denen sich das Add-on heraushält:
 
 Abschalten lässt sich das Ganze in den Add-on-Optionen über **`karte_installieren`**. Das Add-on braucht dafür Schreibzugriff auf die HA-Konfiguration (`homeassistant_config:rw`); geschrieben wird ausschließlich in `www/schulferien_manager/`.
 
+### Optionen der Karte
+
+Die Karte hat einen visuellen Editor: Sie erkennt alle vom Add-on angelegten Regionen und bietet sie als Dropdown an, dazu Schalter für alle Kartenbereiche. YAML geht ebenso:
+
+```yaml
+type: custom:schulferien-card
+title: Schulferien Bayern
+prefix: schulferien_bayern
+```
+
+| Option | Pflicht | Standard | Beschreibung |
+|---|---|---|---|
+| `prefix` | ✅ | – | Entity-ID-Präfix der Region, z. B. `schulferien_bayern` oder `feiertage_bayern` |
+| `title` | – | (leer) | Überschrift der Karte |
+| `suffix` | – | (leer) | Suffix, falls beim Anlegen der Region vergeben (z. B. `kinder`) |
+| `show_banner` | – | `true` | Banner „Es sind {Ferien} bis {Datum}" während laufender Ferien |
+| `demo_banner` | – | `false` | Banner testweise einblenden (mit „Demo"-Markierung) |
+| `show_badges` | – | `true` | Alle Badges auf einmal ausblenden (überstimmt die Einzelschalter) |
+| `badge_heute_schulfrei` | – | `true` | Badge „Heute schulfrei" |
+| `badge_morgen_schulfrei` | – | `true` | Badge „Morgen schulfrei" |
+| `badge_heute_feiertag` | – | `true` | Badge „Heute Feiertag" |
+| `badge_morgen_feiertag` | – | `true` | Badge „Morgen Feiertag" |
+| `show_strip` | – | `true` | Tages-Streifen anzeigen |
+| `strip_days` | – | `14` | Anzahl Tage im Streifen (3–14) |
+| `show_feiertag` | – | `true` | Feiertage in der Terminliste anzeigen |
+| `show_ferien` | – | `true` | Schulferien in der Terminliste anzeigen (inkl. „läuft gerade") |
+| `anzahl_feiertage` | – | `1` | Wie viele kommende Feiertage die Liste zeigt (1–10) |
+| `anzahl_ferien` | – | `1` | Wie viele kommende Ferienzeiträume die Liste zeigt (1–10) |
+
+Die Terminliste ist chronologisch sortiert, aber je Art getrennt gezählt: Bei `1`/`1` stehen dort der nächste Feiertag und die nächsten Ferien – auch wenn zwischendurch weitere Feiertage lägen. Mehr als einen Termin je Art gibt es nur mit der Kalender-Entität (Add-on ab v1.4.0).
+
+
 ## Voraussetzungen
 
 - Home Assistant Core **2025.10 oder neuer** (Discovery nutzt `default_entity_id`)
