@@ -49,13 +49,15 @@ Primär- und Fallback-API sind in den Einstellungen wählbar; vor dem Speichern 
 
 ## Dashboard-Karte
 
-Das Add-on bringt die [Schulferien Card](https://github.com/Melle79/HA-schulferien-card) mit und richtet sie beim Start selbst ein: Es kopiert die Datei nach `<config>/www/schulferien_manager/schulferien-card.js` und trägt sie über die WebSocket-API als Dashboard-Ressource (`/local/schulferien_manager/schulferien-card.js`) ein. Danach steht **„Schulferien Card"** in der Kartenauswahl – ein Neuladen des Browsers genügt, HACS wird nicht gebraucht.
+Das Add-on bringt die **Schulferien Card** mit und richtet sie beim Start selbst ein: Es kopiert die Datei nach `<config>/www/schulferien_manager/schulferien-card.js` und trägt sie über die WebSocket-API als Dashboard-Ressource (`/local/schulferien_manager/schulferien-card.js`) ein. Danach steht **„Schulferien Card"** in der Kartenauswahl – ein Neuladen des Browsers genügt, HACS wird nicht gebraucht.
 
 Der Stand steht im Panel unter **Dashboard-Karte**; dort lässt sich die Einrichtung auch von Hand erneut anstoßen. Mit jeder neuen Add-on-Version wird die Karte mit aktualisiert, die Ressourcen-URL bekommt dann die neue Versionsnummer angehängt (sonst hielten die Browser die alte Datei bis zu einem Monat im Cache).
 
+Die Karte wird hier im Repository gepflegt (`schulferien_manager/frontend/karte/schulferien-card.js`) und zusammen mit dem Add-on versioniert; ihre eigene Versionsnummer steht als `CARD_VERSION` im Kopf der Datei. Das frühere eigene Repository [HA-schulferien-card](https://github.com/Melle79/HA-schulferien-card) ist archiviert.
+
 Zwei Fälle, in denen sich das Add-on heraushält:
 
-- **Karte bereits über HACS installiert**: Dann verwaltet HACS sie weiter – zwei Quellen für dieselbe Karte wären eine Kollision. Das Panel zeigt das an.
+- **Karte noch über HACS installiert** (aus der Zeit des eigenen Repositories): Dann verwaltet HACS sie weiter – zwei Quellen für dieselbe Karte wären eine Kollision. Das Panel zeigt das an; nach dem Entfernen aus HACS übernimmt das Add-on.
 - **Dashboards im YAML-Modus**: Dort verwaltet HA die Ressourcen nicht selbst. Die Datei wird trotzdem bereitgestellt, der Eintrag muss in die `lovelace:`-Konfiguration:
   ```yaml
   lovelace:
