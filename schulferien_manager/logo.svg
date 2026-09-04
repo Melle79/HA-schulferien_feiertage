@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" width="640" height="220">
+  <defs>
+    <linearGradient id="lbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b3648"/><stop offset="1" stop-color="#161d26"/></linearGradient>
+    <linearGradient id="lsonne" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6bd63"/><stop offset="1" stop-color="#e59a2e"/></linearGradient>
+  </defs>
+  <rect width="640" height="220" rx="26" fill="url(#lbg)"/>
+  <!-- Motiv wie im Icon, auf Logohoehe skaliert -->
+  <g transform="translate(38 24) scale(0.36)">
+    <g transform="translate(316 178)">
+      <circle r="74" fill="url(#lsonne)"/>
+      <g stroke="#e8a23d" stroke-width="18" stroke-linecap="round">
+        <line x1="0" y1="-96" x2="0" y2="-116"/><line x1="-96" y1="0" x2="-116" y2="0"/>
+        <line x1="96" y1="0" x2="116" y2="0"/>
+        <line x1="-68" y1="-68" x2="-82" y2="-82"/><line x1="68" y1="-68" x2="82" y2="-82"/>
+      </g>
+    </g>
+    <rect x="72" y="196" width="330" height="252" rx="38" fill="#f7f9fc"/>
+    <path d="M72 254 v-20 a38 38 0 0 1 38-38 h254 a38 38 0 0 1 38 38 v20 z" fill="#7aa2ff"/>
+    <g fill="#d5dce6">
+      <rect x="112" y="296" width="58" height="46" rx="12"/>
+      <rect x="190" y="296" width="58" height="46" rx="12"/>
+      <rect x="112" y="366" width="58" height="46" rx="12"/>
+      <rect x="268" y="366" width="58" height="46" rx="12"/>
+    </g>
+    <rect x="268" y="296" width="58" height="46" rx="12" fill="#e8a23d"/>
+    <rect x="190" y="366" width="58" height="46" rx="12" fill="#e8a23d"/>
+  </g>
+  <text x="216" y="100" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+        font-size="46" font-weight="700" fill="#f7f9fc">Schulferien</text>
+  <text x="216" y="146" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+        font-size="30" font-weight="500" fill="#e8a23d">&amp; Feiertage</text>
+  <text x="216" y="180" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif"
+        font-size="19" font-weight="500" fill="#8a94a3" letter-spacing="1.4">MANAGER</text>
+</svg>

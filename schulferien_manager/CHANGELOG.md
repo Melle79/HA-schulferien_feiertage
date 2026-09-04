@@ -68,3 +68,7 @@
 
 - Karte v1.5.0: Die Terminliste zählt wieder je Art – Standard ist **ein** kommender Feiertag und **ein** kommender Ferienzeitraum, wie vor v1.4.0. Über `anzahl_feiertage` und `anzahl_ferien` (je 1–10, auch im visuellen Editor) lassen sich beide getrennt hochdrehen; die gemeinsame Option `termine_anzahl` aus v1.4.0 entfällt
 - Die Optionen der Karte sind jetzt hier dokumentiert (vorher im inzwischen archivierten Karten-Repository)
+
+## 1.5.2
+
+- Eigenes Icon und Logo für den Add-on-Store (Kalender mit Sonne, in den Farben der Dashboard-Karte). Die Quellen liegen als `icon.svg` und `logo.svg` daneben
